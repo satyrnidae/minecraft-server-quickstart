@@ -1,0 +1,12 @@
+# Memory size can be set with Xmx and Xms.
+# They can take a number followed by an M or a G.
+# M means the number is in megabytes, and G is for a number in gigabytes.
+# Here, the min and max heap sizes have been set to 4 gigabytes.
+-Xms4G -Xmx4G
+# It is recommended to keep the min and max heap sizes the same so that the garbage collector is less aggressive.
+
+# Aikar's flags (recommended for Bukkit/Spigot derived servers)
+-XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 -XX:InitiatingHeapOccupancyPercent=15 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1 -XX:ParallelGCThreads=8 -XX:ConcGCThreads=2 -XX:+EnableDynamicAgentLoading -Dusing.aikars.flags=https://mcflags.emc.gs -Daikars.new.flags=true
+
+# cpw's forge/neoforge flags
+# -XX:+UseG1GC -Dsun.rmi.dgc.server.gcInterval=2147483646 -XX:+UnlockExperimentalVMOptions -XX:G1NewSizePercent=20 -XX:G1ReservePe    rcent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M

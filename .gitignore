@@ -1,0 +1,32 @@
+# Environment variable configs
+*.env
+
+# restart flag
+.restart_flag
+
+# Minecraft server files
+backup*/
+!backup.sh.d/
+!backups/rdiff-args.txt
+cache/
+*config*/
+crash-reports/
+libraries/
+local*/
+logs/
+plugins/
+patchouli_books/
+quests_structures/
+versions/
+*world*/
+mods/
+dynmap/
+kubejs/
+eula.txt
+*.bat
+*.jar
+*.json
+*.yml
+*.properties
+*.png
+.console_history
