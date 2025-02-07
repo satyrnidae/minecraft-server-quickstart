@@ -6,5 +6,5 @@ which $JVM &>/dev/null || {
     exit 127
 }
 
-printf '\nLaunching server file $FORGE_JAR...\n'
-$JVM -server @user_jvm_args.txt $FORGE_JAR "$@"
+printf '\nLaunching server file %s...\n' "${FORGE_ARGS}"
+$JVM -server @user_jvm_args.txt $FORGE_ARGS "$@"

@@ -5,12 +5,12 @@ Script utilities for launching a Minecraft server on Linux in a screen instance.
 
 - `bash` shell and a terminal emulator
 
-### PaperMC Launch Script (run.sh.d/papermc.sh)
+### PaperMC Launch Script (runs/papermc.sh)
 
 - `curl` and `jq` (jqlang) for utilizing the PaperMC download API.
 - OpenJDK or other JVM for running Minecraft
 
-### Forge Launch Script (run.sh.d/forge.sh)
+### Forge Launch Script (runs/forge.sh)
 
 - Forge server installation
 - OpenJDK or other JVM for running Minecraft
@@ -18,7 +18,8 @@ Script utilities for launching a Minecraft server on Linux in a screen instance.
 ### Backup scripts (backup.sh, tasks/autobackup.sh)
 
 - `rdiff-backup` for backups, with the pre-201 CLI
-  - If your distro no longer supplies pre-201 CLI rdiff-backup, modify backup.sh to use the commented-out CLI, and ensure BACKUP_DIRECTORY is not set to a subdirectory of install folder.
+  - If your distro no longer supplies pre-201 CLI rdiff-backup, modify quickstart.env to use the commented-out rdiff201 option, and ensure BACKUP_DIRECTORY is not set to a subdirectory of install folder.
+  - quickstart.env can also be modified to use either `rsync` or `scp` for backup, if preferable.
 
 ### Screen emulator scripts (attach.sh, start.sh, stop.sh, kill.sh, stuff.sh, restart.sh)
 
@@ -31,7 +32,7 @@ Make sure to mark each script you wish to use as executable in an enable shell:
 ```console
 #> chmod u+x,g+x *.sh
 #> chmod u+x,g+x tasks/*.sh
-#> chmod u+x,g+x run.sh.d/*.sh
+#> chmod u+x,g+x runs/*.sh
 ```
 
 This quickstart is configured out of the box to download the latest build of the latest version of the PaperMC minecraft server.
@@ -54,31 +55,38 @@ $> ./env.sh
 
 # Common environment variables
 SCREEN=minecraft_server
-RUNAS=<your username>
+RUNAS=isabel
 
 # start.sh options
 LAUNCH_CMD="./run.sh"
 
 # run.sh options
-RUN_SCRIPT=papermc.sh
-RUN_SCRIPT_ARGS=--nogui
+RUN_SCRIPT=papermc      # Must match the filename of a script in the runs/ folder, sans extension
+RUN_SCRIPT_ARGS=--nogui # These arguments are passed directly to the script file by run.sh
 RESTART_WAIT_TIME=10s
-JVM=<automatically populated if java is on the PATH>
 
-# run.sh.d/papermc.sh options
+# Common arguments for all runs/ scripts
+JVM=
+
+# runs/papermc.sh options
 PAPERCRAFT_JAR=dynamic    # Set this to dynamic to download the latest build from Papers API, or set to a specific jar file.
 PAPERCRAFT_VERSION=latest # If PAPERCRAFT_JAR is set to dynamic, this will determine which Minecraft version is downloaded. Set to latest to use the latest version.
 
-# run.sh.d/forge.sh options
-FORGE_JAR=<example forge unix args file> # Set this to the args file or server jar from your forge installs default script.
+# runs/forge.sh options
+FORGE_ARGS=@libraries/net/minecraftforge/forge/1.19.2-43.4.16/unix_args.txt # Set this to the args file from your forge installs default script.
 
 # backup.sh options
-BACKUP_DIRECTORY=backups/ # Used to perform a full folder rdiff backup. Include and exclude files by editing backup/include-filelist.txt
+# Select one BACKUP_METHOD from the options below.
+BACKUP_METHOD=rdiff       # Legacy rdiff-backup CLI. Uses include-filelist.txt to designate included and excluded files and folders. Only enable if your rdiff-backup install supports the deprecated pre-201 CLI.
+#BACKUP_METHOD=rdiff201   # New rdiff-backup CLI. Use an external or network folder for BACKUP_DIRECTORY, as include-filelist is no longer used.
+#BACKUP_METHOD=rsync      # Use rsync instead of rdiff-backup. Use an external or network folder for BACKUP_DIRECTORY, as no files are excluded.
+#BACKUP_METHOD=scp        # Use secure copy for the backup. Use an external or network folder for BACKUP_DIRECTORY, as no files will be excluded.
+BACKUP_DIRECTORY=backups/ # Destination folder for backups. If using rsync or rdiff201, use a folder outside the current directory.
 ```
 
 ## Custom Run Scripts
 
-You may add custom run script definitions to the **run.sh.d** directory. Two are provided by default, **forge.sh** and **papermc.sh**.
+You may add custom run script definitions to the **runs** directory. Two are provided by default, **forge.sh** and **papermc.sh**.
 Custom scripts and arguments can be configured in the **quickstart.env** file:
 ```sh
 ...
@@ -91,26 +99,28 @@ RUN_SCRIPT_ARGS=--nogui # These arguments are passed directly to the script file
 
 Here is an example of a very simple script for running the standard Minecraft server.jar.
 
-#### run.sh.d/minecraft.sh
+#### runs/minecraft.sh
 ```sh
 #!/bin/bash
 
 echo 'Launching default Minecraft server jar...'
-$JVM -server -jar $SERVER_JAR "$@"
+$JVM -server @user_jvm_args -jar $SERVER_JAR "$@"
 ```
 
 #### quickstart.env
 ```sh
 ...
-RUN_SCRIPT=minecraft.jar
+RUN_SCRIPT=minecraft
 RUN_SCRIPT_ARGS=--nogui
+...
+# runs/minecraft.sh properties
 SERVER_JAR=server.jar
 ...
 ```
 
 #### File Structure
 ```
-run.sh.d/
+runs/
   + minecraft.sh
 server.jar
 run.sh

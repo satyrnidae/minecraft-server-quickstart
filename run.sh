@@ -20,10 +20,10 @@ do
     fi
     
     # Executes the script definition by name.
-    script="./run.sh.d/$RUN_SCRIPT"
+    script="./runs/$RUN_SCRIPT.sh"
     if [ ! -f $script ]; then
-        printf 'There is no script named %s within the run.sh.d directory.\n' "${RUN_SCRIPT}" >&2
-        echo "Please either select an existing script in run.sh.d or create your own." >&2
+        printf 'There is no script named %s within the runs/ directory.\n' "${RUN_SCRIPT}" >&2
+        echo "Please either select an existing script in runs/ or create your own." >&2
         exit 255
     else
         $script $RUN_SCRIPT_ARGS || {

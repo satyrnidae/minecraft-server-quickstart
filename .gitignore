@@ -6,7 +6,6 @@
 
 # Minecraft server files
 backup*/
-!backup.sh.d/
 !backups/rdiff-args.txt
 cache/
 *config*/
