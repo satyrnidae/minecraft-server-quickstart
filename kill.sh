@@ -9,7 +9,7 @@ echo "Sending SIGTERM to screen process and resuming..."
 
 runshpid=$(sudo -u $RUNAS ps h --ppid $(sudo -u $RUNAS screen -ls | grep $SCREEN | cut -d. -f1) -o pid)
 
-sudo -u $RUNAS kill -n 15 $runshpid
+sudo -u $RUNAS kill -TERM $runshpid
 echo Waiting 1 minute for process exit...
 sleep 1s
 for ((i=59;i>0;i++)); do
@@ -32,7 +32,7 @@ done
 if ps -p $runshpid >/dev/null
 then
     echo Kill failed, sending SIGKILL.
-    sudo -u $RUNAS kill -n 9 $runshpid
+    sudo -u $RUNAS kill -KILL $runshpid
     echo Waiting 10 seconds for process death...
     sleep 1s
     for ((i=9;i>0;i--)); do
