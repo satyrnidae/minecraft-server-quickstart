@@ -28,7 +28,7 @@ if [ ! -f $properties_file ]; then
     echo 'RESTART_WAIT_TIME=10s' >> $properties_file
     echo '' >> $properties_file
     echo '# Common arguments for all runs/ scripts' >> $properties_file
-    echo "JVM='$(which java || echo java)'" >> $properties_file
+    echo "JVM='$(readlink -f $(which java) || echo java)'" >> $properties_file
     echo '' >> $properties_file
     echo '# runs/papermc.sh options' >> $properties_file
     echo 'PAPERCRAFT_JAR=dynamic    # Set this to dynamic to download the latest build from Paper''s API, or set to a specific jar file.' >> $properties_file
