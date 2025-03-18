@@ -5,7 +5,7 @@ cd "$(dirname "$0")"
 # Read launcher properties
 . ./env.sh
 
-echo "Sending SIGTERM to screen process and resuming..."
+echo 'Sending SIGTERM to run script in screen...'
 
 runshpid=$(sudo -u $RUNAS ps h --ppid $(sudo -u $RUNAS screen -ls | grep $SCREEN | cut -d. -f1) -o pid)
 
