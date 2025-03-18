@@ -15,7 +15,7 @@ if [ $# -gt 0 ]; then
         elif [ $seconds -eq 0 ]; then
             ./stuff.sh say Server will restart in 1 minute.
         else
-            ./stuff.sh say Server will restart in 1 minutes and $seconds seconds.
+            ./stuff.sh say Server will restart in 1 minute and $seconds seconds.
         fi
     elif [ $minutes -gt 0 ]; then
         if [ $seconds -eq 1 ]; then
