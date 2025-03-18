@@ -5,7 +5,9 @@
 .restart_flag
 
 # Minecraft server files
-backup*/
+**/*
+!runs/*
+!tasks/*
 !backups/rdiff-args.txt
 cache/
 *config*/
@@ -29,3 +31,7 @@ eula.txt
 *.properties
 *.png
 .console_history
+
+# vim working files
+.*.*~
+
