@@ -5,8 +5,28 @@
 -Xms4G -Xmx4G
 # It is recommended to keep the min and max heap sizes the same so that the garbage collector is less aggressive.
 
-# Aikar's flags (recommended for Bukkit/Spigot derived servers)
--XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 -XX:InitiatingHeapOccupancyPercent=15 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1 -XX:ParallelGCThreads=8 -XX:ConcGCThreads=2 -XX:+EnableDynamicAgentLoading -Dusing.aikars.flags=https://mcflags.emc.gs -Daikars.new.flags=true
+# JVM Garbage Collection
+# Aikar's and cpw flags can be used with any Java version.
 
-# cpw's forge/neoforge flags
-# -XX:+UseG1GC -Dsun.rmi.dgc.server.gcInterval=2147483646 -XX:+UnlockExperimentalVMOptions -XX:G1NewSizePercent=20 -XX:G1ReservePe    rcent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M
+# Aikar's flags (recommended for Bukkit/Spigot derived servers)
+#-XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 -XX:InitiatingHeapOccupancyPercent=15 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1 -XX:ParallelGCThreads=8 -XX:ConcGCThreads=2 -XX:+EnableDynamicAgentLoading -Dusing.aikars.flags=https://mcflags.emc.gs -Daikars.new.flags=true
+# If using greater than 8G of memory, this option might perform better
+#-XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+AlwaysPreTouch -XX:G1NewSizePercent=40 -XX:G1MaxNewSizePercent=50 -XX:G1HeapRegionSize=16M -XX:G1ReservePercent=15 -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 -XX:InitiatingHeapOccupancyPercent=20 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1 -Dusing.aikars.flags=https://mcflags.emc.gs -Daikars.new.flags=true
+
+# cpw's forge/neoforge flags. Might be unstable if high memory allocation is enabled.
+#-XX:+UseG1GC -Dsun.rmi.dgc.server.gcInterval=2147483646 -XX:+UnlockExperimentalVMOptions -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M
+
+# These garbage collector options are only available on Java 21+
+
+# ZGC Garbage Collector, the newest and most effective garbage collector for Java 21+
+# These are effectively the best flags you can set as long as you are using a modern JVM
+# This option is the most foolproof.
+#-XX:+UnlockExperimentalVMOptions -XX:+UseZGC -XX:+ZGenerational -XX:+AlwaysPreTouch -XX:+UseFastUnorderedTimeStamps -Xlog:async
+# This version is less stable but works on older Java VMs.
+#-XX:+UnlockExperimentalVMOptions -XX:+UseZGC -XX:+AlwaysPreTouch -XX:+UseFastUnorderedTimeStamps
+
+# Shenandoah GC
+# Alternative to ZGC. Use if ZGC is laggy or otherwise, try this instead.
+#-XX:+UnlockExperimentalVMOptions -XX:+UseShenandoahGC -XX:+AlwaysPreTouch -XX:+UseNUMA
+# Some JVM versions also allow this flag to disable biased locking and potentially further improve performance.
+#-XX:-UseBiasedLocking
