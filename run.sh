@@ -16,7 +16,7 @@ do
     # If the restart flag is present after the run script completes, regardless of exit code,
     #   then we restart the server as though it crashed.
     if [ -f .restart_flag ]; then
-        rm .restart_flag &>/dev/null
+        rm -f .restart_flag &>/dev/null
     fi
     
     # Executes the script definition by name.
@@ -34,7 +34,7 @@ do
 
     # If the restart flag exists, delete it and allow the loop to continue.
     if [ -f .restart_flag ]; then
-        rm .restart_flag || {
+        rm -f .restart_flag || {
             printf '\nFailed to delete the restart flag (exit code %s) - exiting!\n' "${?}" >&2
             exit 1
         }
