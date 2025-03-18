@@ -12,7 +12,7 @@ runshpid=$(sudo -u $RUNAS ps h --ppid $(sudo -u $RUNAS screen -ls | grep $SCREEN
 sudo -u $RUNAS kill -TERM $runshpid
 echo Waiting 1 minute for process exit...
 sleep 1s
-for ((i=59;i>0;i++)); do
+for ((i=59;i>0;i--)); do
     if [ $i -eq 30 ]; then
         echo Checking for process status in 30 seconds...
     elif [ $i -eq 15 ]; then
