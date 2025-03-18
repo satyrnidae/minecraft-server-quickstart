@@ -24,6 +24,7 @@ echo 'Starting unattended backup...'
 
 # Turn automatic saving OFF
 ./stuff.sh save-off
+sleep 1s
 ./stuff.sh save-all
 # Wait for the server to finish saving
 echo "Waiting for server save to complete..."
