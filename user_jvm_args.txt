@@ -1,32 +1,128 @@
-# Memory size can be set with Xmx and Xms.
-# They can take a number followed by an M or a G.
-# M means the number is in megabytes, and G is for a number in gigabytes.
-# Here, the min and max heap sizes have been set to 4 gigabytes.
+# Options for the Java Virtual Machine.
+# Based heavily on brucethemoose's extensive research and benchmarks.
+-XX:+UnlockExperimentalVMOptions
+
+########################### Common Flags (Any VM) ##############################
+# This section contains settings relevant to both Base JVM and GraalVM installs.
+
+###### Memory ######
+# Server memory can be set one of two ways:
+# - Min and Max Heap Size: This is the recommended way to set memory.
+# - RAM Percentage: This is an additional option available for Java 17+.
+
+### Min/Max Heap
+# This can be set with -Xms (min heap size) and -Xmx (max heap size).  The size
+#   of the heap can be specified in Kilobytes (K), megabytes (M), or
+#   gigabytes (G).
+# Min heap size cannot exceed max heap size, and in fact both
+#   should be set to the same value so that the garbage collector is less
+#   aggressive.
+# Here both min and max heap sizes have been set to 4 gigabytes.
 -Xms4G -Xmx4G
-# It is recommended to keep the min and max heap sizes the same so that the garbage collector is less aggressive.
 
-# JVM Garbage Collection
-# Aikar's and cpw flags can be used with any Java version.
+### RAM Percentage (Java 17+)
+# Alternatively you can use a percentage of the maximum available memory on your
+#   device. It is recommended you keep this below 90% to ensure the operating
+#   system has enough available memory to work with. 
+#-XX:MaxRAMPercentage=85.0
 
-# Aikar's flags (recommended for Bukkit/Spigot derived servers)
-#-XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:G1NewSizePercent=30 -XX:G1MaxNewSizePercent=40 -XX:G1HeapRegionSize=8M -XX:G1ReservePercent=20 -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 -XX:InitiatingHeapOccupancyPercent=15 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1 -XX:ParallelGCThreads=8 -XX:ConcGCThreads=2 -XX:+EnableDynamicAgentLoading -Dusing.aikars.flags=https://mcflags.emc.gs -Daikars.new.flags=true
-# If using greater than 8G of memory, this option might perform better
-#-XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200 -XX:+UnlockExperimentalVMOptions -XX:+AlwaysPreTouch -XX:G1NewSizePercent=40 -XX:G1MaxNewSizePercent=50 -XX:G1HeapRegionSize=16M -XX:G1ReservePercent=15 -XX:G1HeapWastePercent=5 -XX:G1MixedGCCountTarget=4 -XX:InitiatingHeapOccupancyPercent=20 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=5 -XX:SurvivorRatio=32 -XX:+PerfDisableSharedMem -XX:MaxTenuringThreshold=1 -Dusing.aikars.flags=https://mcflags.emc.gs -Daikars.new.flags=true
+### Large Memory Pages
+# Large memory pages reduce the amount of time spent allocating chunks of memory
+#   and moving program memory around at runtime.
+# On Windows, you will need to run your server as an administrator.  On Linux,
+#   additional configuration and kernel flag settings might be required to
+#   enable Transparent Huge Pages.
+# If you aren't sure, feel free to leave this disabled.
 
-# cpw's forge/neoforge flags. Might be unstable if high memory allocation is enabled.
-#-XX:+UseG1GC -Dsun.rmi.dgc.server.gcInterval=2147483646 -XX:+UnlockExperimentalVMOptions -XX:G1NewSizePercent=20 -XX:G1ReservePercent=20 -XX:MaxGCPauseMillis=50 -XX:G1HeapRegionSize=32M
+# Windows
+#-XX:+UseLargePages -XX:LargePageSizeInBytes=2m
 
-# These garbage collector options are only available on Java 21+
+# Linux
+#-XX:+UseTransparentHugePages
 
-# ZGC Garbage Collector, the newest and most effective garbage collector for Java 21+
-# These are effectively the best flags you can set as long as you are using a modern JVM
-# This option is the most foolproof.
-#-XX:+UnlockExperimentalVMOptions -XX:+UseZGC -XX:+ZGenerational -XX:+AlwaysPreTouch -XX:+UseFastUnorderedTimeStamps -Xlog:async
-# This version is less stable but works on older Java VMs.
-#-XX:+UnlockExperimentalVMOptions -XX:+UseZGC -XX:+AlwaysPreTouch -XX:+UseFastUnorderedTimeStamps
+### Limited RAM situations
+# If you don't have much available RAM to run the Minecraft server, you can try
+#   using these options w/ the G1GC to improve performance.
+#-XX:NmethodSweepActivity=1 -XX:ReservedCodeCacheSize=400M -XX:NonNMethodCodeHeapSize=12M -XX:ProfiledCodeHeapSize=194M -XX:NonProfiledCodeHeapSize=194M
 
-# Shenandoah GC
-# Alternative to ZGC. Use if ZGC is laggy or otherwise, try this instead.
-#-XX:+UnlockExperimentalVMOptions -XX:+UseShenandoahGC -XX:+AlwaysPreTouch -XX:+UseNUMA
-# Some JVM versions also allow this flag to disable biased locking and potentially further improve performance.
-#-XX:-UseBiasedLocking
+###### Garbage Collection ######
+# Specifying custom garbage collection options is essential, as Java's default
+#   garbage collection is overzealous and can lead to hitches and slowdowns
+#   while memory is being freed.
+
+### Garbage Collector Threading
+# Generally the JVM can easily determine the maximum number of threads to use
+#   in garbage collection, but it might be useful to set your number of
+#   garbage collector threads lower than the default Java thread count.
+# A good option is to use the number of *physical* cores in your server minus
+#  two. (e.g. for a processor with 8 physical cores and 8 logical cores, set
+#  the value to 6. For CPUs with 4 cores, logical or physical, you can set this
+#  value to 2.)
+# -XX:ConcGCThreads=6
+
+### G1GC
+# This is the default garbage collector, and the only available option on
+#  GraalVM.  These options are very similar to Aikar's flags.
+-XX:+UseG1GC -XX:MaxGCPauseMillis=130 -XX:+UnlockExperimentalVMOptions -XX:+DisableExplicitGC -XX:+AlwaysPreTouch -XX:G1NewSizePercent=28 -XX:G1HeapRegionSize=16M -XX:G1ReservePercent=20 -XX:G1MixedGCCountTarget=3 -XX:InitiatingHeapOccupancyPercent=10 -XX:G1MixedGCLiveThresholdPercent=90 -XX:G1RSetUpdatingPauseTimePercent=0 -XX:SurvivorRatio=32 -XX:MaxTenuringThreshold=1 -XX:G1SATBBufferEnqueueingThresholdPercent=30 -XX:G1ConcMarkStepDurationMillis=5 -XX:G1ConcRSHotCardLimit=16 -XX:G1ConcRefinementServiceIntervalMillis=150
+
+# Setting G1WasteHeapPercent to high values may result in better performance,
+#   but your mileage may vary.
+#-XX:G1HeapWastePercent=70
+
+
+########################### Common Flags (Any VM) ##############################
+
+####################### OpenJDK / Java Virtual Machine #########################
+# This section pertains to OpenJDK or base Oracle JDK installs.
+# If you are using a GraalVM-based install, use the flags in the next section.
+
+###### VM Options ######
+-XX:+UnlockExperimentalVMOptions -XX:+UnlockDiagnosticVMOptions -XX:+AlwaysActAsServerClassMachine -XX:+AlwaysPreTouch -XX:+DisableExplicitGC -XX:+UseNUMA -XX:NmethodSweepActivity=1 -XX:ReservedCodeCacheSize=400M -XX:NonNMethodCodeHeapSize=12M -XX:ProfiledCodeHeapSize=194M -XX:NonProfiledCodeHeapSize=194M -XX:-DontCompileHugeMethods -XX:MaxNodeLimit=240000 -XX:NodeLimitFudgeFactor=8000 -XX:+UseVectorCmov -XX:+PerfDisableSharedMem -XX:+UseFastUnorderedTimeStamps -XX:+UseCriticalJavaThreadPriority -XX:ThreadPriorityPolicy=1 -XX:AllocatePrefetchStyle=3
+
+### Disabled-by-Default OpenJDK Flags
+# These flags are disabled by default in OpenJDK.  Enabling these options might
+#   result in better performance, but your mileage may vary.
+#-XX:+AlignVector -XX:+OptoBundling -XX:+OptimizeFill -XX:+AlwaysCompileLoopMethods -XX:+EnableVectorAggressiveReboxing -XX:+EnableVectorSupport -XX:+OptoScheduling -XX:+UseCharacterCompareIntrinsics -XX:+UseCopySignIntrinsic -XX:+UseVectorStubs
+
+###### Garbage Collection ######
+# These garbage collection options are only available for certain
+#   implementations of OpenJDK.  None of them are present in GraalVM.  If you
+#   are unsure whether you can use these garbage collectors, it may be best to
+#   use the G1GC configuration available in the Common Flags (Any VM) section
+#   above.
+
+### ZGC
+# Recommended only for Java 17+.  Not available on GraalVM.  Not present in Java
+#   8, and does not perform well on Java 11.
+# Note that ZGC uses more system resources than G1 or Shenandoah garbage
+#   collection. It is however the best option for servers with high core counts
+#   and available memory.
+# -XX:+UseZGC -XX:AllocatePrefetchStyle=1 -XX:-ZProactive
+
+### Shenandoah
+# Only available on RedHat OpenJDK.  Not available on GraalVM.  Not present in
+#  Java 8.
+# May adversely affect server throughput.  Make sure to avoid
+#   AllocatePrefetchStyle=3 when using Shenandoah.
+#-XX:+UseShenandoahGC -XX:ShenandoahGCMode=iu -XX:ShenandoahGuaranteedGCInterval=1000000 -XX:AllocatePrefetchStyle=1
+
+####################### OpenJDK / Java Virtual Machine #########################
+
+###################### GraalVM Enterprise Edition / JDK ########################
+# This section only pertains to GraalVM, and then only for the non-Community
+#   Edition builds (Enterprise Edition, or GraalVM v22+ releases).
+
+###### VM Options ######
+#-XX:+UnlockExperimentalVMOptions -XX:+UnlockDiagnosticVMOptions -XX:+AlwaysActAsServerClassMachine -XX:+AlwaysPreTouch -XX:+DisableExplicitGC -XX:+UseNUMA -XX:AllocatePrefetchStyle=3 -XX:NmethodSweepActivity=1 -XX:ReservedCodeCacheSize=400M -XX:NonNMethodCodeHeapSize=12M -XX:ProfiledCodeHeapSize=194M -XX:NonProfiledCodeHeapSize=194M -XX:-DontCompileHugeMethods -XX:+PerfDisableSharedMem -XX:+UseFastUnorderedTimeStamps -XX:+UseCriticalJavaThreadPriority -XX:+EagerJVMCI -Dgraal.TuneInlinerExploration=1 -Dgraal.CompilerConfiguration=enterprise
+
+### Aggressive Inlining
+# CPUs with large caches might benefit from enabling this option
+#-Dgraal.BaseTargetSpending=160
+
+### Potentially Unstable Flags
+# These flags reportedly lead to instability in GraalVM EE 21 and lower, but may
+#   be more stable in post-EE/CE releases.
+#-Dgraal.OptWriteMotion=true -Dgraal.WriteableCodeCache=true
+
+
+###################### GraalVM Enterprise Edition / JDK ########################
