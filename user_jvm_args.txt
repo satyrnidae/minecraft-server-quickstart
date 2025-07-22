@@ -2,6 +2,61 @@
 # Based heavily on brucethemoose's extensive research and benchmarks.
 -XX:+UnlockExperimentalVMOptions
 
+####################### OpenJDK / Java Virtual Machine #########################
+# This section pertains to OpenJDK or base Oracle JDK installs.
+# If you are using a GraalVM-based install, use the flags in the next section.
+
+###### VM Options ######
+-XX:+UnlockExperimentalVMOptions -XX:+UnlockDiagnosticVMOptions -XX:+AlwaysActAsServerClassMachine -XX:+AlwaysPreTouch -XX:+DisableExplicitGC -XX:+UseNUMA -XX:NmethodSweepActivity=1 -XX:ReservedCodeCacheSize=400M -XX:NonNMethodCodeHeapSize=12M -XX:ProfiledCodeHeapSize=194M -XX:NonProfiledCodeHeapSize=194M -XX:-DontCompileHugeMethods -XX:MaxNodeLimit=240000 -XX:NodeLimitFudgeFactor=8000 -XX:+UseVectorCmov -XX:+PerfDisableSharedMem -XX:+UseFastUnorderedTimeStamps -XX:+UseCriticalJavaThreadPriority -XX:ThreadPriorityPolicy=1 -XX:AllocatePrefetchStyle=3
+
+### Disabled-by-Default OpenJDK Flags
+# These flags are disabled by default in OpenJDK.  Enabling these options might
+#   result in better performance, but your mileage may vary.
+#-XX:+AlignVector -XX:+OptoBundling -XX:+OptimizeFill -XX:+AlwaysCompileLoopMethods -XX:+EnableVectorAggressiveReboxing -XX:+EnableVectorSupport -XX:+OptoScheduling -XX:+UseCharacterCompareIntrinsics -XX:+UseCopySignIntrinsic -XX:+UseVectorStubs
+
+###### Garbage Collection ######
+# These garbage collection options are only available for certain
+#   implementations of OpenJDK.  None of them are present in GraalVM.  If you
+#   are unsure whether you can use these garbage collectors, it may be best to
+#   use the G1GC configuration available in the Common Flags (Any VM) section
+#   below.
+
+### ZGC
+# Recommended only for Java 17+.  Not available on GraalVM.  Not present in Java
+#   8, and does not perform well on Java 11.
+# Note that ZGC uses more system resources than G1 or Shenandoah garbage
+#   collection. It is however the best option for servers with high core counts
+#   and available memory.
+# -XX:+UseZGC -XX:AllocatePrefetchStyle=1 -XX:-ZProactive
+
+### Shenandoah
+# Only available on RedHat OpenJDK.  Not available on GraalVM.  Not present in
+#  Java 8.
+# May adversely affect server throughput.  Make sure to avoid
+#   AllocatePrefetchStyle=3 when using Shenandoah.
+#-XX:+UseShenandoahGC -XX:ShenandoahGCMode=iu -XX:ShenandoahGuaranteedGCInterval=1000000 -XX:AllocatePrefetchStyle=1
+
+####################### OpenJDK / Java Virtual Machine #########################
+
+###################### GraalVM Enterprise Edition / JDK ########################
+# This section only pertains to GraalVM, and then only for the non-Community
+#   Edition builds (Enterprise Edition, or GraalVM v22+ releases).
+
+###### VM Options ######
+#-XX:+UnlockExperimentalVMOptions -XX:+UnlockDiagnosticVMOptions -XX:+AlwaysActAsServerClassMachine -XX:+AlwaysPreTouch -XX:+DisableExplicitGC -XX:+UseNUMA -XX:AllocatePrefetchStyle=3 -XX:NmethodSweepActivity=1 -XX:ReservedCodeCacheSize=400M -XX:NonNMethodCodeHeapSize=12M -XX:ProfiledCodeHeapSize=194M -XX:NonProfiledCodeHeapSize=194M -XX:-DontCompileHugeMethods -XX:+PerfDisableSharedMem -XX:+UseFastUnorderedTimeStamps -XX:+UseCriticalJavaThreadPriority -XX:+EagerJVMCI -Dgraal.TuneInlinerExploration=1 -Dgraal.CompilerConfiguration=enterprise
+
+### Aggressive Inlining
+# CPUs with large caches might benefit from enabling this option
+#-Dgraal.BaseTargetSpending=160
+
+### Potentially Unstable Flags
+# These flags reportedly lead to instability in GraalVM EE 21 and lower, but may
+#   be more stable in post-EE/CE releases.
+#-Dgraal.OptWriteMotion=true -Dgraal.WriteableCodeCache=true
+
+
+###################### GraalVM Enterprise Edition / JDK ########################
+
 ########################### Common Flags (Any VM) ##############################
 # This section contains settings relevant to both Base JVM and GraalVM installs.
 
@@ -58,7 +113,7 @@
 #  two. (e.g. for a processor with 8 physical cores and 8 logical cores, set
 #  the value to 6. For CPUs with 4 cores, logical or physical, you can set this
 #  value to 2.)
-# -XX:ConcGCThreads=6
+#-XX:ConcGCThreads=6
 
 ### G1GC
 # This is the default garbage collector, and the only available option on
@@ -69,60 +124,4 @@
 #   but your mileage may vary.
 #-XX:G1HeapWastePercent=70
 
-
 ########################### Common Flags (Any VM) ##############################
-
-####################### OpenJDK / Java Virtual Machine #########################
-# This section pertains to OpenJDK or base Oracle JDK installs.
-# If you are using a GraalVM-based install, use the flags in the next section.
-
-###### VM Options ######
--XX:+UnlockExperimentalVMOptions -XX:+UnlockDiagnosticVMOptions -XX:+AlwaysActAsServerClassMachine -XX:+AlwaysPreTouch -XX:+DisableExplicitGC -XX:+UseNUMA -XX:NmethodSweepActivity=1 -XX:ReservedCodeCacheSize=400M -XX:NonNMethodCodeHeapSize=12M -XX:ProfiledCodeHeapSize=194M -XX:NonProfiledCodeHeapSize=194M -XX:-DontCompileHugeMethods -XX:MaxNodeLimit=240000 -XX:NodeLimitFudgeFactor=8000 -XX:+UseVectorCmov -XX:+PerfDisableSharedMem -XX:+UseFastUnorderedTimeStamps -XX:+UseCriticalJavaThreadPriority -XX:ThreadPriorityPolicy=1 -XX:AllocatePrefetchStyle=3
-
-### Disabled-by-Default OpenJDK Flags
-# These flags are disabled by default in OpenJDK.  Enabling these options might
-#   result in better performance, but your mileage may vary.
-#-XX:+AlignVector -XX:+OptoBundling -XX:+OptimizeFill -XX:+AlwaysCompileLoopMethods -XX:+EnableVectorAggressiveReboxing -XX:+EnableVectorSupport -XX:+OptoScheduling -XX:+UseCharacterCompareIntrinsics -XX:+UseCopySignIntrinsic -XX:+UseVectorStubs
-
-###### Garbage Collection ######
-# These garbage collection options are only available for certain
-#   implementations of OpenJDK.  None of them are present in GraalVM.  If you
-#   are unsure whether you can use these garbage collectors, it may be best to
-#   use the G1GC configuration available in the Common Flags (Any VM) section
-#   above.
-
-### ZGC
-# Recommended only for Java 17+.  Not available on GraalVM.  Not present in Java
-#   8, and does not perform well on Java 11.
-# Note that ZGC uses more system resources than G1 or Shenandoah garbage
-#   collection. It is however the best option for servers with high core counts
-#   and available memory.
-# -XX:+UseZGC -XX:AllocatePrefetchStyle=1 -XX:-ZProactive
-
-### Shenandoah
-# Only available on RedHat OpenJDK.  Not available on GraalVM.  Not present in
-#  Java 8.
-# May adversely affect server throughput.  Make sure to avoid
-#   AllocatePrefetchStyle=3 when using Shenandoah.
-#-XX:+UseShenandoahGC -XX:ShenandoahGCMode=iu -XX:ShenandoahGuaranteedGCInterval=1000000 -XX:AllocatePrefetchStyle=1
-
-####################### OpenJDK / Java Virtual Machine #########################
-
-###################### GraalVM Enterprise Edition / JDK ########################
-# This section only pertains to GraalVM, and then only for the non-Community
-#   Edition builds (Enterprise Edition, or GraalVM v22+ releases).
-
-###### VM Options ######
-#-XX:+UnlockExperimentalVMOptions -XX:+UnlockDiagnosticVMOptions -XX:+AlwaysActAsServerClassMachine -XX:+AlwaysPreTouch -XX:+DisableExplicitGC -XX:+UseNUMA -XX:AllocatePrefetchStyle=3 -XX:NmethodSweepActivity=1 -XX:ReservedCodeCacheSize=400M -XX:NonNMethodCodeHeapSize=12M -XX:ProfiledCodeHeapSize=194M -XX:NonProfiledCodeHeapSize=194M -XX:-DontCompileHugeMethods -XX:+PerfDisableSharedMem -XX:+UseFastUnorderedTimeStamps -XX:+UseCriticalJavaThreadPriority -XX:+EagerJVMCI -Dgraal.TuneInlinerExploration=1 -Dgraal.CompilerConfiguration=enterprise
-
-### Aggressive Inlining
-# CPUs with large caches might benefit from enabling this option
-#-Dgraal.BaseTargetSpending=160
-
-### Potentially Unstable Flags
-# These flags reportedly lead to instability in GraalVM EE 21 and lower, but may
-#   be more stable in post-EE/CE releases.
-#-Dgraal.OptWriteMotion=true -Dgraal.WriteableCodeCache=true
-
-
-###################### GraalVM Enterprise Edition / JDK ########################
