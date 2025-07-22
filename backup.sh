@@ -12,7 +12,7 @@ if [ $BACKUP_METHOD == 'rdiff201' ]; then
         exit 127
     }
     rdiff-backup --force --api-version 201 --terminal-verbosity 5 --ssh-compression backup . $BACKUP_DIRECTORY
-elif [ $BACKUP_METHOD == 'rdiff']; then
+elif [ $BACKUP_METHOD == 'rdiff' ]; then
     echo "Backing up entire server to ${BACKUP_DIRECTORY} with rdiff-backup, legacy CLI w/ excludes..."
     which rdiff-backup &>/dev/null || {
         printf 'Failed to start backup; rdiff-backup was not found!\nPlease install rdiff-backup and ensure it is on your PATH.\n' &>2
