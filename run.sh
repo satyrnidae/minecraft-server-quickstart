@@ -11,6 +11,10 @@ cd "$(dirname "$0")"
 # Main run loop
 while :;
 do
+    # Remove the watchdog lockfile if present.
+    if [ -f .watchdog_lock ]; then
+        rm -f .watchdog_lock &>/dev/null
+    fi
 
     # Remove the restart flag which will be used to determine if the main loop should break or not.
     # If the restart flag is present after the run script completes, regardless of exit code,
@@ -26,10 +30,20 @@ do
         echo "Please either select an existing script in runs/ or create your own." >&2
         exit 255
     else
+        # If watchdog is enabled, create .watchdog_lock
+        if [ $ENABLE_QUERY -gt 0 ]; then
+            touch .watchdog_lock
+        fi
+
         $script $RUN_SCRIPT_ARGS || {
             printf '\nDetected server crash (exit code: %s)!\n' "${?}" >&2
             touch .restart_flag
         }
+    fi
+
+    # Remove the watchdog lockfile if present.
+    if [ -f .watchdog_lock ]; then
+        rm -f .watchdog_lock &>/dev/null
     fi
 
     # If the restart flag exists, delete it and allow the loop to continue.

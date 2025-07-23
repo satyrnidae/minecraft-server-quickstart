@@ -61,3 +61,7 @@ then
 else
     echo No process to kill could be found.
 fi
+
+if [ -f .watchdog_lock ]; then
+    rm -f .watchdog_lock &>/dev/null
+fi
