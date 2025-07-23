@@ -8,7 +8,7 @@ cd "$(dirname "$0")/.."
 
 . ./env.sh
 
-if [ $ENABLE_QUERY -lt 1 ]; then
+if [ $ENABLE_QUERY -eq 0 ]; then
     echo "Skipping watchdog check as ENABLE_QUERY is disabled."
     exit 0
 fi
