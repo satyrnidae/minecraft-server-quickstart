@@ -7,7 +7,7 @@
 cd "$(dirname "$0")/.."
 
 # This will get overwritten by env
-$ENABLE_QUERY=0
+ENABLE_QUERY=0
 
 . ./env.sh
 
