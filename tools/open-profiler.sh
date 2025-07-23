@@ -19,7 +19,7 @@ sleep 5s
 
 URL="$(awk '/https:\/\/spark\.lucko\.me\/\S+/ {lines[i++]=$0} END{print lines[i-1]}' logs/latest.log | grep -oP 'https://spark\.lucko\.me/\S+')"
 
-if $URL; then
+if [[! -z $URL]]; then
     echo "Got Spark Profiler URL $URL"
     xdg-open $URL
 else
