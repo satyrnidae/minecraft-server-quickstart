@@ -8,6 +8,11 @@ cd "$(dirname "$0")/.."
 
 . ./env.sh
 
+if [ $ENABLE_QUERY < 1 ]; then
+    echo "Skipping watchdog check as ENABLE_QUERY is disabled."
+    exit 0
+fi
+
 # Skip watchdog ping if the lock file is not present.
 if [ ! -f .watchdog_lock ]; then
     echo "Skipping watchdog check as .watchdog_lock is not present."
