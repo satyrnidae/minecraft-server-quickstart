@@ -51,6 +51,7 @@ if [ ! -f $properties_file ]; then
     echo 'KICK_CMD="kick @a \"The server is restarting! We'"'"'ll be back in a bit!\""' >> $properties_file
     echo '' >> $properties_file
     echo '# watchdog.sh task properties' >> $properties_file
+    echo "MCLI='$(realpath "$(which mcli)" || echo mcli)'" >> $properties_file
     echo 'ENABLE_QUERY=1    # Set to 0 to disable touch of the .watchdog_lock file' >> $properties_file
     echo 'QUERY_PORT=25567' >> $properties_file
     echo 'QUERY_TIMEOUT=300 # The time, in seconds, to wait for the query result. May need to be adjusted if the startup time for your server is very long.' >> $properties_file

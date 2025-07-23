@@ -8,6 +8,7 @@ cd "$(dirname "$0")/.."
 
 # This will get overwritten by env
 ENABLE_QUERY=0
+MCLI=mcli
 
 . ./env.sh
 
@@ -27,11 +28,11 @@ WD_FR=0
 . ./.watchdog_lock
 
 # Query the Minecraft server
-which mcli &>/dev/null || {
+which $MCLI &>/dev/null || {
     echo 'Failed to query server; mctools was not found!\nPlease ensure mctools/mcli is on your PATH.'
     exit 127
 }
-mcli -t $QUERY_TIMEOUT localhost:$QUERY_PORT query &>/dev/null || {
+$MCLI -t $QUERY_TIMEOUT localhost:$QUERY_PORT query &>/dev/null || {
     WD_FR=$(($WD_FR+1))
     echo "Failed to query server! Might be dead or stalled. (Failure #$WD_FR)"
 
