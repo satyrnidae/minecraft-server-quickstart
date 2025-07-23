@@ -18,7 +18,7 @@ echo "Stopping Spark profiler..."
 echo "Spark profiler stopped.  Waiting for results..."
 sleep 5s
 
-URL="$(awk '/https:\/\/spark\.lucko\.me\/\S+\B/ {lines[i++]=$0} END{print lines[i-1]}' logs/latest.log | grep -oP 'https://spark\.lucko\.me/\S+\B')"
+URL="$(awk '/https:\/\/spark\.lucko\.me\/\S+/ {lines[i++]=$0} END{print lines[i-1]}' logs/latest.log | grep -oP 'https://spark\.lucko\.me/\S+')"
 
 if $URL; then
     echo "Got profiler resutls URL $URL"
