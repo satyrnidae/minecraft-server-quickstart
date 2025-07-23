@@ -27,7 +27,7 @@
 # Note that ZGC uses more system resources than G1 or Shenandoah garbage
 #   collection. It is however the best option for servers with high core counts
 #   and available memory.
-# -XX:+UseZGC -XX:AllocatePrefetchStyle=1 -XX:-ZProactive
+#-XX:+UseZGC -XX:AllocatePrefetchStyle=1 -XX:-ZProactive
 
 ### Shenandoah
 # Only available on RedHat OpenJDK.  Not available on GraalVM.  Not present in
@@ -78,7 +78,7 @@
 ### RAM Percentage (Java 17+)
 # Alternatively you can use a percentage of the maximum available memory on your
 #   device. It is recommended you keep this below 90% to ensure the operating
-#   system has enough available memory to work with. 
+#   system has enough available memory to work with.
 #-XX:MaxRAMPercentage=85.0
 
 ### Large Memory Pages

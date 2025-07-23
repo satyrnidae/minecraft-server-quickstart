@@ -1,6 +1,5 @@
 #!/bin/bash
 # Loads launcher properties into environment variables, and creates a default env file if none exists.
-cd "$(dirname "$0")"
 
 properties_file='./quickstart.env'
 

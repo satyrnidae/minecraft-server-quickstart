@@ -10,7 +10,7 @@ cd "$(dirname "$0")/.."
 
 # if the SCREEN is not active we can skip the countdown part
 if sudo -u $RUNAS screen -list | grep -q $SCREEN; then
-# 30 minute countdown.
+    # 30 minute countdown.
     ./stuff.sh 'say The server will restart automatically in 30 minutes.'
     sleep 15m
     ./stuff.sh 'say The server will restart automatically in 15 minutes.'

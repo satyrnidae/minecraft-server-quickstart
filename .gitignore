@@ -5,10 +5,7 @@
 .restart_flag
 
 # Minecraft server files
-**/*
-!runs/*
-!tasks/*
-!backups/rdiff-args.txt
+backups/
 cache/
 *config*/
 crash-reports/
