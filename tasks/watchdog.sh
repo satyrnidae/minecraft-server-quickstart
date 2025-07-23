@@ -46,4 +46,5 @@ mcli -t $QUERY_TIMEOUT localhost:$QUERY_PORT query &>/dev/null || {
     fi
     exit 0
 }
+echo 'Server is fine.'
 echo 'WD_FR=0' >./.watchdog_lock
