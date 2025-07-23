@@ -35,7 +35,7 @@ if sudo -u $RUNAS screen -list | grep -q $SCREEN; then
     ./stuff.sh 'say The server will restart automatically in 1 second!'
     sleep 1s
     ./stuff.sh 'say Goodbye!'
-    ./stuff.sh "kick @a The server is restarting. We'll be back in a few!"
+    ./stuff.sh "$KICK_CMD"
     ./stuff.sh 'stop'
     sleep 2m
 fi

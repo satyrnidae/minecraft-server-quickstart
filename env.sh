@@ -46,10 +46,11 @@ if [ ! -f $properties_file ]; then
     echo '#BACKUP_METHOD=rsync      # Use rsync instead of rdiff-backup. Use an external or network folder for BACKUP_DIRECTORY, as no files are excluded.' >> $properties_file
     echo '#BACKUP_METHOD=scp        # Use secure copy for the backup. Use an external or network folder for BACKUP_DIRECTORY, as no files will be excluded.' >> $properties_file
     echo 'BACKUP_DIRECTORY=backups/ # Destination folder for backups. If using rsync or rdiff201, use a folder outside the current directory.' >> $properties_file
-
+    echo '' >> $properties_file
+    echo '# autorestart.sh / autoreboot.sh task properties' >> $properties_file
+    echo 'KICK_CMD="kick @a \"The server is restarting! We'"'"'ll be back in a bit!\""' >> $properties_file
 fi
 
-# echo "$(grep -v -e '^[[:space:]]*#' -e '^[[:space:]]*$' $properties_file | sed -E 's/(.+?)=(.*)/\U\1\E=\2/;' | xargs -d '\n' -0 -l1)"
 set -a
 . $properties_file
 set +a
