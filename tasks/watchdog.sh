@@ -6,6 +6,9 @@
 
 cd "$(dirname "$0")/.."
 
+# This will get overwritten by env
+$ENABLE_QUERY=0
+
 . ./env.sh
 
 if [ $ENABLE_QUERY -eq 0 ]; then
