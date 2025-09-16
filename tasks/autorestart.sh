@@ -11,32 +11,11 @@ cd "$(dirname "$0")/.."
 # if the SCREEN is not active we can skip the countdown part
 if sudo -u $RUNAS screen -list | grep -q $SCREEN; then
     # 30 minute countdown.
-    ./stuff.sh 'title @a actionbar ["The server will restart in ",{"text":"30 minutes","color":"yellow"},"."]'
-    sleep 15m
-    ./stuff.sh 'title @a actionbar ["The server will restart in ",{"text":"15 minutes","color":"yellow"},"."]'
-    sleep 10m
-    ./stuff.sh 'title @a actionbar ["The server will restart in ",{"text":"5 minutes","color":"yellow"},"."]'
-    sleep 4m
-    ./stuff.sh 'title @a actionbar ["The server will restart in ",{"text":"1 minute","color":"yellow"},"!"]'
-    sleep 30s
-    ./stuff.sh 'title @a actionbar ["The server will restart in ",{"text":"30 seconds","color":"yellow"},"!"]'
-    ./stuff.sh 'save-all'
-    sleep 15s
-    ./stuff.sh 'title @a actionbar ["The server will restart in ",{"text":"15 seconds","color":"yellow"},"!"]'
-    sleep 10s
-    ./stuff.sh 'title @a actionbar ["The server will restart in ",{"text":"5 seconds","color":"red"},"..."]'
-    sleep 1s
-    ./stuff.sh 'title @a actionbar ["The server will restart in ",{"text":"4 seconds","color":"red"},"..."]'
-    sleep 1s
-    ./stuff.sh 'title @a actionbar ["The server will restart in ",{"text":"3 seconds","color":"red"},"..."]'
-    sleep 1s
-    ./stuff.sh 'title @a actionbar ["The server will restart in ",{"text":"2 seconds","color":"red"},"..."]'
-    sleep 1s
-    ./stuff.sh 'title @a actionbar ["The server will restart in ",{"text":"1 second","color":"red"},"..."]'
-    sleep 1s
-    ./stuff.sh 'title @a title ["",{"text":"Goodbye!","color":"yellow"}]'
-    ./stuff.sh "$KICK_CMD"
+    ./tasks/countdown.sh $RESTART_TIMER "Server will restart"
+    ./stuff.sh "$BCAST_CMD [\"\",{\"text\":\"Goodbye!\",\"color\":\"yellow\"}]"
+    ./stuff.sh "$KICK_CMD \"The server is restarting! We'll be back in a bit!\""
     ./stuff.sh 'stop'
+    # Give the server time to stop
     sleep 2m
 fi
 

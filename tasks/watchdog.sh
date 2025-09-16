@@ -23,7 +23,7 @@ if [ ! -f .watchdog_lock ]; then
     exit 0
 fi
 
-WD_FR=0
+WATCHDOG_QUERY_FAILS=0
 # Pull counter from watchdog_lock
 . ./.watchdog_lock
 
@@ -33,19 +33,19 @@ which $MCLI &>/dev/null || {
     exit 127
 }
 $MCLI -t $QUERY_TIMEOUT localhost:$QUERY_PORT query &>/dev/null || {
-    WD_FR=$(($WD_FR+1))
-    echo "Failed to query server! Might be dead or stalled. (Failure #$WD_FR)"
+    WATCHDOG_QUERY_FAILS=$(($WATCHDOG_QUERY_FAILS+1))
+    echo "Failed to query server! Might be dead or stalled. (Failure #$WATCHDOG_QUERY_FAILS)"
 
-    if [ $WD_FR -gt 2 ]; then
+    if [ $WATCHDOG_QUERY_FAILS -gt 2 ]; then
         echo 'Watchdog failed to query server three times! Killing server.'
         rm -f ./.watchdog_lock &>/dev/null
         ./kill.sh
         sleep 3s
         ./start.sh
     else
-        echo "WD_FR=$WD_FR" >./.watchdog_lock
+        echo "WATCHDOG_QUERY_FAILS=$WATCHDOG_QUERY_FAILS" >./.watchdog_lock
     fi
     exit 0
 }
 echo 'Server is fine.'
-echo 'WD_FR=0' >./.watchdog_lock
+echo 'WATCHDOG_QUERY_FAILS=0' >./.watchdog_lock

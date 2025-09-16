@@ -29,6 +29,10 @@ if [ ! -f $properties_file ]; then
     echo '# Common arguments for all runs/ scripts' >> $properties_file
     echo "JVM='$(realpath "$(which java)" || echo java)'" >> $properties_file
     echo '' >> $properties_file
+    echo '# Common server commands used at runtime from certain scripts.' >> $properties_file
+    echo 'BCAST_CMD="title @a actionbar" # Broadcast command for the server. Must support chat component strings as the final argument.' >> $properties_file
+    echo 'KICK_CMD="kick @a" # Command to kick all players from the server. Must support strings and chat component strings as the final argument.' >> $properties_file
+    echo '' >> $properties_file
     echo '# runs/papermc.sh options' >> $properties_file
     echo 'PAPERCRAFT_JAR=dynamic    # Set this to dynamic to download the latest build from Paper''s API, or set to a specific jar file.' >> $properties_file
     echo 'PAPERCRAFT_VERSION=latest # If PAPERCRAFT_JAR is set to dynamic, this will determine which Minecraft version is downloaded. Set to latest to use the latest version.' >> $properties_file
@@ -48,7 +52,7 @@ if [ ! -f $properties_file ]; then
     echo 'BACKUP_DIRECTORY=backups/ # Destination folder for backups. If using rsync or rdiff201, use a folder outside the current directory.' >> $properties_file
     echo '' >> $properties_file
     echo '# autorestart.sh / autoreboot.sh task properties' >> $properties_file
-    echo 'KICK_CMD="kick @a \"The server is restarting! We'"'"'ll be back in a bit!\""' >> $properties_file
+    echo 'RESTART_TIMER=1800 # Time in seconds to wait before restarting the server automatically.'
     echo '' >> $properties_file
     echo '# watchdog.sh task properties' >> $properties_file
     echo "MCLI='$(realpath "$(which mcli)" || echo mcli)'" >> $properties_file
