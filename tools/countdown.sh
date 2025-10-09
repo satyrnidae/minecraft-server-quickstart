@@ -119,7 +119,7 @@ if [ $# -gt 1 ]; then
     ovr '%s in %u:%02u:%02u%s Time component color: %- 6s' "$message" "$hours" "$minutes" "$seconds" "$punct" "$color"
 
     for ((i=$1-1;i>0;--i)); do
-        sleep 0.0001s
+        sleep 1s
         hours=$(($i / 3600))
         minutes=$(($i / 60 % 60))
         seconds=$(($i % 60))
@@ -168,5 +168,5 @@ else
     fatal $EX_USAGE 'You must provide an amount of time to count down for and a message for the timer.'
 fi
 sleep 1s
-ovr '%s in 0h00m00s%s Time component color: %- 6s\n' "$message" "$punct" "$color"
+ovr '%s in 0h00m00s%s Time component color: %- 6s\n  ' "$message" "$punct" "$color"
 log 'Countdown complete.'
