@@ -1,67 +1,81 @@
 #!/bin/bash
 # Causes the running screen to exit via SIGTERM.
-cd "$(dirname "$0")"
+# Dependencies:
+#   - screen
+# Child scripts:
+#   - attach.sh
+# Configuration variables:
+#   - RUNAS:  The user with whom the screen would launch.
+#   - SCREEN: The name of the screen that the server would run under.
+# Exit codes:
+#   - 71  (EX_OSERR):       The server did not respond to SIGKILL
+#   - 127 (EX_CMDNOTFOUND): Missing a dependency
 
-# Read launcher properties
+# Navigate to the directory of the env script and trap exit for popd
+pushd "$(dirname "$0")" >/dev/null
+# Configure the environment
 . ./env.sh
+# Add trap for exit
+prepend_trap 'popd >/dev/null' EXIT
 
-echo 'Sending SIGTERM to run script in screen...'
+depends screen
+if ! sudo -u $RUNAS screen -ls | grep -q $SCREEN; then
+    fatal $EX_OK "There was no screen $SCREEN present for $RUNAS."
+fi
 
-runshpid=$(sudo -u $RUNAS ps h --ppid $(sudo -u $RUNAS screen -ls | grep $SCREEN | cut -d. -f1) -o pid)
-
-if ps -p $runshpid >/dev/null
-then
-    sudo -u $RUNAS kill -TERM $runshpid
-    echo Waiting 1 minute for process exit...
-    sleep 1s
-    for ((i=59;i>0;i--)); do
+pid=$(ps h -u $RUNAS --ppid $(sudo -u $RUNAS ls /run/screen/S-$RUNAS | grep $SCREEN | cut -d . -f1) -o pid | awk '{$1=$1};1')
+if ps -p $pid >/dev/null; then
+    cmd=$(ps h -p $pid -o cmd)
+    log "Found process $pid with command $cmd, sending SIGTERM..."
+    sudo -u $RUNAS kill -TERM $pid
+    log 'Waiting 1 minute for process exit.'
+    printf '\rChecking for process status in 30 seconds...'
+    for ((i=60;i>0;i--)); do
         if [ $i -eq 30 ]; then
-            echo Checking for process status in 30 seconds...
+            printf '\rChecking for process status in 30 seconds...'
         elif [ $i -eq 15 ]; then
-            echo Checking for process status in 15 seconds...
+            printf '\rChecking for process status in 15 seconds...'
         elif [ $i -eq 10 ]; then
-            echo Checking for process status in 10 seconds...
+            printf '\rChecking for process status in 10 seconds...'
         elif [ $i -le 5 ]; then
             if [ $i -eq 1 ]; then
-                echo Checking for process status in 1 second...
+                printf '\rChecking for process status in  1 second... '
             else
-                echo Checking for process status in $i seconds...
+                printf '\rChecking for process status in  %s seconds...' $i
             fi
         fi
         sleep 1s
     done
+    line_feed
 
-    if ps -p $runshpid >/dev/null
-    then
-        echo Kill failed, sending SIGKILL.
-        sudo -u $RUNAS kill -KILL $runshpid
-        echo Waiting 10 seconds for process death...
-        sleep 1s
-        for ((i=9;i>0;i--)); do
+    if ps -p $pid >/dev/null; then
+        warning "Process $pid failed to respond to SIGTERM in time, sending SIGKILL..."
+        sudo -u $RUNAS kill -KILL $pid
+        log 'Waiting 10 seconds for process death.'
+        printf '\rChecking for process status in 10 seconds...'
+        for ((i=10;i>0;i--)); do
             if [ $i -le 5 ]; then
                 if [ $i -eq 1 ]; then
-                    echo Checking for process status in 1 second...
+                    printf '\rChecking for process status in  1 second... '
                 else
-                    echo Checking for process status in $i seconds...
+                    printf '\rChecking for process status in  %s seconds...' $i
                 fi
             fi
             sleep 1s
         done
-        if ps -p $runshpid >/dev/null
-        then
-            echo Failed to terminate run script! Reattaching screen process.
-        else
-            echo Run script terminated. Reattaching screen process in case it is still active.
+        line_feed
+
+        if ps -p $pid >/dev/null; then
+            fatal $EX_OSERR 'Failed to terminate run script!'
         fi
-    else
-        echo Run script terminated. Reattaching screen process in case it is still active.
     fi
 
-    sudo -u $RUNAS screen -r $SCREEN
+    log 'Run script terminated. Reattaching screen process in case it is still active.'
+    ./attach.sh
 else
-    echo No process to kill could be found.
+    warning 'No process to kill could be found.'
 fi
 
 if [ -f .watchdog_lock ]; then
-    rm -f .watchdog_lock &>/dev/null
+    rm -f .watchdog_lock >/dev/null
 fi

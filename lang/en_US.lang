@@ -1,0 +1,49 @@
+#!/bin/bash
+
+# tasks/autobackup.sh
+LANG_CMP_AUTOBACKUP_COMPLETE='["",{"text":"Server backup complete.","color":"yellow"}]'
+LANG_CMP_AUTOBACKUP_START_COMPONENT='["",{"text":"Server backup started.","color":"yellow"}]'
+LANG_CMP_AUTOBACKUP_FAILED_COMPONENT='["",{"text":"Server backup failed! Please notify the admin.","color":"red"}]'
+
+# tasks/autoreboot.sh
+LANG_STR_AUTOREBOOT_COUNTDOWN='Host will reboot'
+LANG_CMP_AUTOREBOOT_GOODBYE='["",{"text":"Goodbye!","color":"yellow"}]'
+LANG_CMP_AUTOREBOOT_KICKREASON_1S='["The server host is rebooting! We'\''ll be back in about ",{"text":"%s","color":"yellow"},"!"]'
+
+# tasks/autorestart.sh
+LANG_STR_AUTORESTART_COUNTDOWN='Server will restart'
+LANG_CMP_AUTORESTART_GOODBYE='["",{"text":"Goodbye!","color":"yellow"}]'
+LANG_CMP_AUTORESTART_KICKREASON_1S='["The server is restarting! We'\''ll be back in about ",{"text":"%s","color":"yellow"},"!"]'
+
+# tools/countdown.sh
+LANG_CMP_COUNTDOWN_XHXMXS='["%s in ",{"text":"%s hours, %s minutes and %s seconds","color":"%s"},"%s"]'
+LANG_CMP_COUNTDOWN_XHXM1S='["%s in ",{"text":"%s hours, %s minutes and 1 second","color":"%s"},"%s"]'
+LANG_CMP_COUNTDOWN_XHXM0S='["%s in ",{"text":"%s hours and %s minutes","color":"%s"},"%s"]'
+LANG_CMP_COUNTDOWN_XH1MXS='["%s in ",{"text":"%s hours, 1 minute and %s seconds","color":"%s"},"%s"]'
+LANG_CMP_COUNTDOWN_XH1M1S='["%s in ",{"text":"%s hours, 1 minute and 1 second","color":"%s"},"%s"]'
+LANG_CMP_COUNTDOWN_XH1M0S='["%s in ",{"text":"%s hours and 1 minute","color":"%s"},"%s"]'
+LANG_CMP_COUNTDOWN_XH0MXS='["%s in ",{"text":"%s hours and %s seconds","color":"%s"},"%s"]'
+LANG_CMP_COUNTDOWN_XH0M1S='["%s in ",{"text":"%s hours and 1 second","color":"%s"},"%s"]'
+LANG_CMP_COUNTDOWN_XH0M0S='["%s in ",{"text":"%s hours","color":"%s"},"%s"]'
+
+LANG_CMP_COUNTDOWN_1HXMXS='["%s in ",{"text":"1 hour, %s minutes and %s seconds","color":"%s"},"%s"]'
+LANG_CMP_COUNTDOWN_1HXM1S='["%s in ",{"text":"1 hour, %s minutes and 1 second","color":"%s"},"%s"]'
+LANG_CMP_COUNTDOWN_1HXM0S='["%s in ",{"text":"1 hour and %s minutes","color":"%s"},"%s"]'
+LANG_CMP_COUNTDOWN_1H1MXS='["%s in ",{"text":"1 hour, 1 minute and %s seconds","color":"%s"},"%s"]'
+LANG_CMP_COUNTDOWN_1H1M1S='["%s in ",{"text":"1 hour, 1 minute and 1 second","color":"%s"},"%s"]'
+LANG_CMP_COUNTDOWN_1H1M0S='["%s in ",{"text":"1 hour and 1 minute","color":"%s"},"%s"]'
+LANG_CMP_COUNTDOWN_1H0MXS='["%s in ",{"text":"1 hour and %s seconds","color":"%s"},"%s"]'
+LANG_CMP_COUNTDOWN_1H0M1S='["%s in ",{"text":"1 hour and 1 second","color":"%s"},"%s"]'
+LANG_CMP_COUNTDOWN_1H0M0S='["%s in ",{"text":"1 hour","color":"%s"},"%s"]'
+
+LANG_CMP_COUNTDOWN_0HXMXS='["%s in ",{"text":"%s minutes and %s seconds","color":"%s"},"%s"]'
+LANG_CMP_COUNTDOWN_0HXM1S='["%s in ",{"text":"%s minutes and 1 second","color":"%s"},"%s"]'
+LANG_CMP_COUNTDOWN_0HXM0S='["%s in ",{"text":"%s minutes","color":"%s"},"%s"]'
+
+LANG_CMP_COUNTDOWN_0H1MXS='["%s in ",{"text":"1 minute and %s seconds","color":"%s"},"%s"]'
+LANG_CMP_COUNTDOWN_0H1M1S='["%s in ",{"text":"1 minute and 1 second","color":"%s"},"%s"]'
+LANG_CMP_COUNTDOWN_0H1M0S='["%s in ",{"text":"1 minute","color":"%s"},"%s"]'
+
+LANG_CMP_COUNTDOWN_0H0MXS='["%s in ",{"text":"%s seconds","color":"%s"},"%s"]'
+
+LANG_CMP_COUNTDOWN_0H0M1S='["%s in ",{"text":"1 second","color":"%s"},"%s"]'

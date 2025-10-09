@@ -1,7 +1,11 @@
 #!/bin/bash
 # Starts the launcher script specified in $environment
-cd "$(dirname "$0")"
 
+# Navigate to the directory of the env script and trap exit for popd
+pushd "$(dirname "$0")" >/dev/null
+trap "popd >/dev/null" EXIT
+
+# Configure the environment
 . ./env.sh
 
 echo "Launching as user $RUNAS in screen $SCREEN..."

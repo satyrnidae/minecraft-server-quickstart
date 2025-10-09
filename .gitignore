@@ -1,5 +1,7 @@
 # Environment variable configs
 *.env
+# Log files
+*.log
 
 # restart flag
 .restart_flag
@@ -32,3 +34,5 @@ eula.txt
 # vim working files
 .*.*~
 
+# VS Code settings
+!.vscode/settings.json

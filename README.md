@@ -4,6 +4,7 @@ Script utilities for launching a Minecraft server on Linux in a screen instance.
 ## Dependencies
 
 - `bash` shell and a terminal emulator
+- `pgrep`
 
 ### PaperMC Launch Script (runs/papermc.sh)
 

@@ -1,10 +1,16 @@
 #!/bin/bash
 # Stops the server by removing RESTART_FLAG and sending the stop command.
-cd "$(dirname "$0")"
+
+# Navigate to the directory of the env script and trap exit for popd
+pushd "$(dirname "$0")" >/dev/null
+trap "popd >/dev/null" EXIT
+
+# Configure the environment
+. ./env.sh
 
 # Sleep and warning subroutine
 if [ $# -gt 0 ]; then
-    ./tasks/countdown $1 "Server will shut down"
+    ./tools/countdown $1 "Server will shut down"
 fi
 # Remove the restart flag if it is present.
 rm .restart_flag &>/dev/null || true
