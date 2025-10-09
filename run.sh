@@ -37,6 +37,7 @@ do
         # If watchdog is enabled, create .watchdog_lock
         if [ $ENABLE_QUERY -gt 0 ]; then
             touch .watchdog_lock
+            prepend_trap 'rm -f .watchdog-lock || warning "Failed to delete the watchdog lockfile!"' EXIT
         fi
 
         log "Executing run script $script with args: $RUN_SCRIPT_ARGS"

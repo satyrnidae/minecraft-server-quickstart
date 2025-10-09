@@ -6,6 +6,9 @@
 # restart flag
 .restart_flag
 
+# lock files
+.*_lock
+
 # Minecraft server files
 backups/
 cache/
