@@ -130,12 +130,16 @@ depends() {
 }
 
 # Signal traps
+extract_trap_cmd() {
+    if ! [[ "$3" = "" ]]; then
+        printf '%s\n' "$3"
+    fi
+}
 prepend_trap() {
     trap_add_cmd=$1; shift || fatal $EX_USAGE "${FUNCNAME} usage error"
     for trap_add_name in "$@"; do
         trap -- "$(
             printf '%s\n' "${trap_add_cmd}"
-            extract_trap_cmd() { if ! [ $3=="" ]; then printf '%s\n' "$3"; fi; }
             eval "extract_trap_cmd $(trap -p "${trap_add_name}" || "")"
         )" "${trap_add_name}" \
             || fatal "unable to add to trap ${trap_add_name}"
@@ -146,7 +150,6 @@ append_trap() {
     trap_add_cmd=$1; shift || fatal $EX_USAGE "${FUNCNAME} usage error"
     for trap_add_name in "$@"; do
         trap -- "$(
-            extract_trap_cmd() { if ! [ $3=="" ]; then printf '%s\n' "$3"; fi; }
             eval "extract_trap_cmd $(trap -p "${trap_add_name}" || "")"
             printf '%s\n' "${trap_add_cmd}"
         )" "${trap_add_name}" \
