@@ -29,41 +29,39 @@ if ps -p $pid >/dev/null; then
     log "Found process $pid with command $cmd, sending SIGTERM..."
     sudo -u $RUNAS kill -TERM $pid
     log 'Waiting 1 minute for process exit.'
-    printf '\rChecking for process status in 30 seconds...'
-    for ((i=60;i>0;i--)); do
-        if [ $i -eq 30 ]; then
-            printf '\rChecking for process status in 30 seconds...'
-        elif [ $i -eq 15 ]; then
-            printf '\rChecking for process status in 15 seconds...'
-        elif [ $i -eq 10 ]; then
-            printf '\rChecking for process status in 10 seconds...'
-        elif [ $i -le 5 ]; then
-            if [ $i -eq 1 ]; then
-                printf '\rChecking for process status in  1 second... '
-            else
-                printf '\rChecking for process status in  %s seconds...' $i
-            fi
+    for ((i=240;i>0;i--)); do
+        if [ $i -gt 120 ]; then
+            spinner 'Checking for process status in  1 minute '
+        elif [ $i -gt 60 ]; then
+            spinner 'Checking for process status in 30 seconds'
+        elif [ $i -gt 40 ]; then
+            spinner 'Checking for process status in 15 seconds'
+        elif [ $i -ge 20 ]; then
+            spinner 'Checking for process status in 10 seconds'
+        elif [ $i -gt 4 ]; then
+            spinner 'Checking for process status in  %s seconds' $(($i / 4 + 1))
+        else
+            spinner 'Checking for process status in  1 second '
         fi
-        sleep 1s
+        sleep 0.25s
     done
-    line_feed
+    ovr 'Checking for process status now.            \n'
 
     if ps -p $pid >/dev/null; then
         warning "Process $pid failed to respond to SIGTERM in time, sending SIGKILL..."
         sudo -u $RUNAS kill -KILL $pid
         log 'Waiting 10 seconds for process death.'
-        printf '\rChecking for process status in 10 seconds...'
-        for ((i=10;i>0;i--)); do
-            if [ $i -le 5 ]; then
-                if [ $i -eq 1 ]; then
-                    printf '\rChecking for process status in  1 second... '
-                else
-                    printf '\rChecking for process status in  %s seconds...' $i
-                fi
+        for ((i=40;i>0;i--)); do
+            if [ $i -ge 20 ]; then
+                spinner 'Checking for process status in 10 seconds'
+            elif [ $i -gt 4 ]; then
+                spinner 'Checking for process status in  %s seconds' $(($i / 4 + 1))
+            else
+                spinner 'Checking for process status in  1 second '
             fi
-            sleep 1s
+            sleep 0.25s
         done
-        line_feed
+        ovr 'Checking for process status now.            \n'
 
         if ps -p $pid >/dev/null; then
             fatal $EX_OSERR 'Failed to terminate run script!'
