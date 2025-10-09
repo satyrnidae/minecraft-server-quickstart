@@ -66,9 +66,29 @@ EX_SIGSYS=159       # Fatal SIGSYS signal
 set +a
 
 # Common functions
+ovr() {
+    printf "\r$1" "${@:2}"
+}
 line_feed() {
     printf '\n'
 }
+
+if [[ -z "${__SPIN_COUNTER}" ]]; then
+    set -a
+    __SPIN_COUNTER=0;
+    set +a
+fi
+spinner() {
+    spin_frames=('   ' '.  ' '.. ' '...' ' ..' '  .' '   ')
+    spindex=$(($__SPIN_COUNTER % ${#spin_frames[@]}))
+    set -a
+    __SPIN_COUNTER=$(($__SPIN_COUNTER + 1))
+    set +a
+
+    ovr "$1%s" "${@:2}" "${spin_frames[$spindex]}"
+}
+
+# Logging
 banner() {
     printf '%s ------ %s ------\n' "$(date +'%Y-%m-%dT%H:%M:%S%z')" "$*" >>./quickstart.log 2>&1
 }
@@ -77,9 +97,6 @@ debug() {
         printf 'DEBUG: %s\n' "$*"
         printf '%s DEBUG: %s\n' "$(date +'%Y-%m-%dT%H:%M:%S%z')" "$*" >>./quickstart.log 2>&1
     fi
-}
-ovr() {
-    printf "\r$1" "${@:2}"
 }
 log() {
     printf '%s\n' "$*"
@@ -99,6 +116,8 @@ fatal() {
     printf '%s FATAL: %s (Exit code %s)\n' "$(date +'%Y-%m-%dT%H:%M:%S%z')" "$*" "$exit_code" >>./quickstart.log 2>&1
     exit $exit_code
 }
+
+# Dependencies
 optional() {
     command -v "$*" >/dev/null 2>&1 || {
         warning 'Failed to locate optional dependency "'"$*"'". Please ensure the file exists or the command is on your PATH.'
@@ -109,6 +128,8 @@ depends() {
         fatal $EX_CMDNOTFOUND 'Failed to locate required dependency "'"$*"'". Please ensure the file exists or the command is on your PATH';
     }
 }
+
+# Signal traps
 prepend_trap() {
     trap_add_cmd=$1; shift || fatal $EX_USAGE "${FUNCNAME} usage error"
     for trap_add_name in "$@"; do
@@ -134,7 +155,11 @@ append_trap() {
 }
 declare -f -t append_trap
 
-banner $(realpath $0)
+if [[ -z "$0" ]]; then
+    banner $(realpath "$0")
+else
+    banner $(realpath "./env.sh")
+fi
 
 properties_file='./quickstart.env'
 
@@ -202,7 +227,7 @@ if ! [ -f $properties_file ]; then
     echo 'MAX_QUERY_FAILS=3 # The number of times that the query can fail before the server is killed and restarted.' >> $properties_file
 fi
 
-sys_locale=$(locale -s)
+sys_locale=$(locale | grep LANG | cut -d = -f2 | cut -d . -f1)
 if ! [ -f ./lang/$sys_locale.lang ]; then
     debug "Failed to find a locale file matching system locale $sys_locale. Defaulting to en_US."
     sys_locale='en_US'
@@ -239,6 +264,6 @@ debug "Loading real properties from $(realpath $properties_file)."
 . $properties_file
 
 # Load locale
-debug "Loading locale file from $(realpath ./lang/$sys_locale.lang)."
-. ./lang/$sys_locale.lang
+debug "Loading locale file from $(realpath "./lang/$sys_locale.lang")."
+. "./lang/$sys_locale.lang"
 set +a
