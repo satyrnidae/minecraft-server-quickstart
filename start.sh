@@ -3,18 +3,19 @@
 
 # Navigate to the directory of the env script and trap exit for popd
 pushd "$(dirname "$0")" >/dev/null
-trap "popd >/dev/null" EXIT
-
 # Configure the environment
 . ./env.sh
+# Add trap for exit
+prepend_trap 'popd >/dev/null' EXIT
 
-echo "Launching as user $RUNAS in screen $SCREEN..."
+banner "Started a new Minecraft server instance"
+
+log "Launching as user $RUNAS in screen $SCREEN..."
 
 sudo -u $RUNAS screen -dS $SCREEN -m "$LAUNCH_CMD" || {
-    echo "Failed to launch (Exit code: ${?})" >&2
-    exit 1
+    fatal $? "Failed to launch the server!"
 }
 
-echo "Server launched in screen $SCREEN."
+log "Server launched in screen $SCREEN."
 
-sudo -u $RUNAS screen -r $SCREEN
+./attach.sh

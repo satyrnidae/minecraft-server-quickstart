@@ -3,10 +3,10 @@
 
 # Navigate to the directory of the env script and trap exit for popd
 pushd "$(dirname "$0")" >/dev/null
-trap "popd >/dev/null" EXIT
-
 # Configure the environment
 . ./env.sh
+# Add trap for exit
+prepend_trap 'popd >/dev/null' EXIT
 
 # Sleep and warning subroutine
 if [ $# -gt 0 ]; then
@@ -16,4 +16,3 @@ fi
 rm .restart_flag &>/dev/null || true
 
 ./stuff.sh stop
-sleep 2m

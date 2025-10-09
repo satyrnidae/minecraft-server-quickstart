@@ -23,8 +23,6 @@ prepend_trap 'popd >/dev/null' EXIT
 log 'Papercraft Shell Server Updater and Launcher v2.1'
 
 if [[ "$PAPERCRAFT_JAR" = 'dynamic' ]]; then
-    depends rdiff-backup
-
     depends jq
     depends curl
 
@@ -98,6 +96,8 @@ if ! [ -f "$filename" ]; then
     fi
 fi
 
-log 'Launching the server jar "'"$filename"'" with the options from user_jvm_args.txt...'
+log 'Launching the server jar "'"$filename"'" with the options from user_jvm_args.txt and the args "'"$@"'"...'
 
+trap 'fatal '"$EX_SIGINT"' "User sent SIGINT (Ctrl+C). Exiting."' INT
 $JVM -server @user_jvm_args.txt -jar $filename "$@"
+trap - INT

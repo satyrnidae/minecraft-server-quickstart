@@ -42,10 +42,13 @@ do
         log "Executing run script $script with args: $RUN_SCRIPT_ARGS"
 
         $script $RUN_SCRIPT_ARGS || {
-            if [ "$?" = "$EX_CONFIG" ]; then
+            exit_code=$?
+            if [[ "$exit_code" = "$EX_CONFIG" ]]; then
                 fatal $EX_CONFIG "Detected an unrecoverable configuration error. Please verify your quickstart.env file."
+            elif [[ "$exit_code" = "$EX_SIGINT" ]]; then
+                fatal $EX_SIGINT "SIGINT detected. The server will not restart."
             else
-                error "Detected server crash (Exit code $?)! Marking server for a restart."
+                error "Detected server crash (Exit code $exit_code)! Marking server for a restart."
                 touch .restart_flag >/dev/null 2>&1 || {
                     fatal $EX_IOERR "Failed to touch .restart_flag (Exit code $?)."
                 }

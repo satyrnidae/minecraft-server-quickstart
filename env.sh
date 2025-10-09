@@ -155,12 +155,6 @@ append_trap() {
 }
 declare -f -t append_trap
 
-if [[ -z "$0" ]]; then
-    banner $(realpath "$0")
-else
-    banner $(realpath "./env.sh")
-fi
-
 properties_file='./quickstart.env'
 
 # Initialize the properties file if it doesn't yet exist.
@@ -184,7 +178,7 @@ if ! [ -f $properties_file ]; then
     echo 'LAUNCH_CMD="./run.sh"' >> $properties_file
     echo '' >> $properties_file
     echo '# run.sh options' >> $properties_file
-    echo 'RUN_SCRIPT=papermc      # Must match the filename of a script in the "runs/" folder, sans extension' >> $properties_file
+    echo 'RUN_SCRIPT=papermc.sh   # Must match the filename of a script in the "runs/" folder, sans extension' >> $properties_file
     echo 'RUN_SCRIPT_ARGS=--nogui # These arguments are passed directly to the script file by run.sh' >> $properties_file
     echo 'RESTART_WAIT_TIME=10s' >> $properties_file
     echo '' >> $properties_file
@@ -238,7 +232,7 @@ debug 'Setting default property values.'
 SCREEN='minecraft_server'
 RUNAS="$(whoami)"
 LAUNCH_CMD='./run.sh'
-RUN_SCRIPT='papermc'
+RUN_SCRIPT='papermc.sh'
 RUN_SCRIPT_ARGS='--nogui'
 RESTART_WAIT_TIME='10s'
 JVM="$(command -v java)"
@@ -267,3 +261,8 @@ debug "Loading real properties from $(realpath $properties_file)."
 debug "Loading locale file from $(realpath "./lang/$sys_locale.lang")."
 . "./lang/$sys_locale.lang"
 set +a
+
+# Autoaccept EULA
+if ! [ -f './eula.txt' ]; then
+    printf 'eula=true\n' >./eula.txt
+fi
