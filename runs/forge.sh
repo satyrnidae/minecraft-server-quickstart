@@ -26,4 +26,4 @@ if ! [ -f "$FORGE_ARGS" ]; then
 fi
 
 log 'Launching Forge using args from "'"$FORGE_ARGS"'"...'
-$JVM -server @user_jvm_args.txt $FORGE_ARGS "$@"
+$JVM -server @user_jvm_args.txt '@'"$FORGE_ARGS" "$@"

@@ -178,7 +178,7 @@ if ! [ -f $properties_file ]; then
     echo 'LAUNCH_CMD="./run.sh"' >> $properties_file
     echo '' >> $properties_file
     echo '# run.sh options' >> $properties_file
-    echo 'RUN_SCRIPT=papermc.sh   # Must match the filename of a script in the "runs/" folder, sans extension' >> $properties_file
+    echo 'RUN_SCRIPT=papermc.sh   # Must match the filename of a script in the "runs/" folder, with extension' >> $properties_file
     echo 'RUN_SCRIPT_ARGS=--nogui # These arguments are passed directly to the script file by run.sh' >> $properties_file
     echo 'RESTART_WAIT_TIME=10s' >> $properties_file
     echo '' >> $properties_file
@@ -194,7 +194,7 @@ if ! [ -f $properties_file ]; then
     echo 'PAPERCRAFT_VERSION=latest # If PAPERCRAFT_JAR is set to dynamic, this will determine which Minecraft version is downloaded. Set to latest to use the latest version.' >> $properties_file
     echo '' >> $properties_file
     echo '# runs/forge.sh options' >> $properties_file
-    echo 'FORGE_ARGS=@libraries/net/minecraftforge/forge/1.19.2-43.4.16/unix_args.txt # Set this to the args file from your forge install''s default script.' >> $properties_file
+    echo 'FORGE_ARGS=libraries/net/minecraftforge/forge/1.19.2-43.4.16/unix_args.txt # Set this to the args file from your forge install''s default script.' >> $properties_file
     echo '' >> $properties_file
     echo '# runs/minecraft.sh options' >> $properties_file
     echo 'SERVER_JAR=server.jar # Set this to the name of the jar file you want to run.' >> $properties_file
