@@ -181,8 +181,8 @@ if ! [ -f $properties_file ]; then
     echo 'LAUNCH_CMD="./run.sh"' >> $properties_file
     echo '' >> $properties_file
     echo '# run.sh options' >> $properties_file
-    echo 'RUN_SCRIPT=papermc.sh   # Must match the filename of a script in the "runs/" folder, with extension' >> $properties_file
-    echo 'RUN_SCRIPT_ARGS=--nogui # These arguments are passed directly to the script file by run.sh' >> $properties_file
+    echo 'RUN_SCRIPT=papermc.sh     # Must match the filename of a script in the "runs/" folder, with extension' >> $properties_file
+    echo 'RUN_SCRIPT_ARGS=(--nogui) # These arguments are passed directly to the script file by run.sh as a bash array. Add more entries for more arguments, such as (--nogui --universe saves --world "my world").' >> $properties_file
     echo 'RESTART_WAIT_TIME=10s' >> $properties_file
     echo '' >> $properties_file
     echo '# Common arguments for all runs/ scripts' >> $properties_file
@@ -209,6 +209,7 @@ if ! [ -f $properties_file ]; then
     echo '#BACKUP_METHOD=rdiff201     # New rdiff-backup CLI. Use an external or network folder for BACKUP_DIRECTORY, as include-filelist is no longer used.' >> $properties_file
     echo '#BACKUP_METHOD=rsync        # Use rsync instead of rdiff-backup. Use an external or network folder for BACKUP_DIRECTORY, as no files are excluded.' >> $properties_file
     echo '#BACKUP_METHOD=scp          # Use secure copy for the backup. Use an external or network folder for BACKUP_DIRECTORY, as no files will be excluded.' >> $properties_file
+    echo '#BACKUP_ARGS=(--no-acls)    # Extra args for the backup command as a bash array. For rdiff-backup, these come after the "backup" command. For others, they are passed directly to the command.' >> $properties_file
     echo '' >> $properties_file
     echo '# autorestart.sh / autoreboot.sh task properties' >> $properties_file
     echo 'RESTART_TIMER=1800               # Time in seconds to wait before restarting the server automatically.' >> $properties_file
@@ -236,7 +237,7 @@ SCREEN='minecraft_server'
 RUNAS="$(whoami)"
 LAUNCH_CMD='./run.sh'
 RUN_SCRIPT='papermc.sh'
-RUN_SCRIPT_ARGS='--nogui'
+RUN_SCRIPT_ARGS=(--nogui)
 RESTART_WAIT_TIME='10s'
 JVM="$(command -v java)"
 BCAST_CMD='title @a actionbar'
@@ -247,6 +248,7 @@ FORGE_ARGS='@libraries/net/minecraftforge/forge/1.19.2-43.4.16/unix_args.txt'
 SERVER_JAR='server.jar'
 BACKUP_DIRECTORY="backups/"
 BACKUP_METHOD='rdiff'
+BACKUP_ARGS=()
 RESTART_TIMER='1800'
 RESTART_ESTIMATE='5 minutes'
 FULL_CYCLE_ESTIMATE='10 minutes'

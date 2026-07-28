@@ -62,8 +62,8 @@ RUNAS=isabel
 LAUNCH_CMD="./run.sh"
 
 # run.sh options
-RUN_SCRIPT=papermc      # Must match the filename of a script in the runs/ folder, sans extension
-RUN_SCRIPT_ARGS=--nogui # These arguments are passed directly to the script file by run.sh
+RUN_SCRIPT=papermc        # Must match the filename of a script in the runs/ folder, sans extension
+RUN_SCRIPT_ARGS=(--nogui) # These arguments are passed directly to the script file by run.sh as a bash array. Add more entries for more arguments, such as (--nogui --universe saves --world "my world").
 RESTART_WAIT_TIME=10s
 
 # Common arguments for all runs/ scripts
@@ -83,7 +83,10 @@ BACKUP_METHOD=rdiff       # Legacy rdiff-backup CLI. Uses include-filelist.txt t
 #BACKUP_METHOD=rsync      # Use rsync instead of rdiff-backup. Use an external or network folder for BACKUP_DIRECTORY, as no files are excluded.
 #BACKUP_METHOD=scp        # Use secure copy for the backup. Use an external or network folder for BACKUP_DIRECTORY, as no files will be excluded.
 BACKUP_DIRECTORY=backups/ # Destination folder for backups. If using rsync or rdiff201, use a folder outside the current directory.
+#BACKUP_ARGS=(--no-acls)  # Extra args for the backup command as a bash array. For rdiff-backup, these come after the "backup" command. For others, they are passed directly to the command.
 ```
+
+`RUN_SCRIPT_ARGS` and `BACKUP_ARGS` are bash arrays. A single-flag value from before this change, such as `RUN_SCRIPT_ARGS=--nogui`, keeps working unchanged. A value that packed multiple flags into one string, such as `RUN_SCRIPT_ARGS="--nogui --other"`, needs to be converted to array syntax (`RUN_SCRIPT_ARGS=(--nogui --other)`) or it will be passed through as a single argument.
 
 ## Custom Run Scripts
 
@@ -92,7 +95,7 @@ Custom scripts and arguments can be configured in the **quickstart.env** file:
 ```sh
 ...
 RUN_SCRIPT=papermc.sh # Change this to the name of the custom script file
-RUN_SCRIPT_ARGS=--nogui # These arguments are passed directly to the script file by run.sh
+RUN_SCRIPT_ARGS=(--nogui) # These arguments are passed directly to the script file by run.sh
 ...
 ```
 
@@ -112,7 +115,7 @@ $JVM -server @user_jvm_args -jar $SERVER_JAR "$@"
 ```sh
 ...
 RUN_SCRIPT=minecraft
-RUN_SCRIPT_ARGS=--nogui
+RUN_SCRIPT_ARGS=(--nogui)
 ...
 # runs/minecraft.sh properties
 SERVER_JAR=server.jar

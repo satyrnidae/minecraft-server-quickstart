@@ -40,9 +40,9 @@ do
             prepend_trap 'rm -f .watchdog-lock || warning "Failed to delete the watchdog lockfile!"' EXIT
         fi
 
-        log "Executing run script $script with args: $RUN_SCRIPT_ARGS"
+        log "Executing run script $script with args: ${RUN_SCRIPT_ARGS[*]}"
 
-        $script $RUN_SCRIPT_ARGS || {
+        $script "${RUN_SCRIPT_ARGS[@]}" || {
             exit_code=$?
             if [[ "$exit_code" = "$EX_CONFIG" ]]; then
                 fatal $EX_CONFIG "Detected an unrecoverable configuration error. Please verify your quickstart.env file."
