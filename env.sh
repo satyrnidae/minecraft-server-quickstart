@@ -250,7 +250,7 @@ if ! [ -f $properties_file ]; then
     echo '' >> $properties_file
     echo '# run.sh options' >> $properties_file
     echo 'RUN_SCRIPT=papermc.sh     # Must match the filename of a script in the "runs/" folder, with extension' >> $properties_file
-    echo 'RUN_SCRIPT_ARGS=(--nogui) # These arguments are passed directly to the script file by run.sh as a bash array. Add more entries for more arguments, such as (--nogui --universe saves --world "my world").' >> $properties_file
+    echo 'RUN_SCRIPT_ARGS=(--nogui --universe saves) # These arguments are passed directly to the script file by run.sh as a bash array. Add more entries for more arguments, such as (--nogui --universe saves --world "my world").' >> $properties_file
     echo 'RESTART_WAIT_TIME=10s' >> $properties_file
     echo '' >> $properties_file
     echo '# Common arguments for all runs/ scripts' >> $properties_file
