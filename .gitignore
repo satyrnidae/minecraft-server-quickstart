@@ -33,6 +33,8 @@ eula.txt
 *.properties
 *.png
 .console_history
+saves/
+codeofconduct/
 
 # vim working files
 .*.*~
