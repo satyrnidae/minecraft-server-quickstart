@@ -1,6 +1,6 @@
 #!/bin/bash
 # Launches a PaperMC server.
-# This script also uses the PaperMC.io API to optionally download a dynamic release number from the PaperMC website.
+# This script also uses the PaperMC Fill v3 API to optionally download a dynamic release number from the PaperMC website.
 # Dependencies:
 #   - jq   (Optional)
 #   - curl (Optional)
@@ -9,6 +9,7 @@
 #   - PAPERCRAFT_VERSION: If PAPERCRAFT_JAR is set to dynamic, this will determine which Minecraft version is downloaded. Set to latest to use the latest version.
 #   - JVM:                The command to launch the Java Virtual Machine.
 # Exit codes:
+#   - 69  (EX_UNAVAILABLE): Set if a request to papermc.io fails to resolve/connect, or returns a non-2xx HTTP response.
 #   - 74  (EX_IOERR):       Set if the dynamically downloaded server file is somehow missing after the download completes.
 #   - 78  (EX_CONFIG):      Set if the Java Virtual Machine or the server jar file could not be located.
 #   - 127 (EX_CMDNOTFOUND): Set if dynamic jar download is enabled and either jq or curl are not available.
@@ -29,25 +30,17 @@ if [[ "$PAPERCRAFT_JAR" = 'dynamic' ]]; then
     # Get the latest version and build from
     if [[ "$PAPERCRAFT_VERSION" = "latest" ]]; then
         log 'Pulling latest minecraft version from papermc.io.'
-        latest_version=$( curl -s -X GET \
-                          -H 'accept: application/json' \
-                          https://api.papermc.io/v2/projects/paper \
-                          | jq -r '.versions[-1]' )
+        http_get_json https://fill.papermc.io/v3/projects/paper latest_version '.versions | to_entries[0].value[0]'
         log "Launching Minecraft v$latest_version!"
     else
         log "Pulling latest $PAPERCRAFT_VERSION build from papermc.io."
         latest_version=$PAPERCRAFT_VERSION
     fi
-    latest_build=$( curl -s -X GET \
-                    -H 'accept: application/json' \
-                    https://api.papermc.io/v2/projects/paper/versions/$latest_version \
-                    | jq -r '.builds[-1]' )
-    application=$( curl -s -X GET \
-                   -H 'accept: application/json' \
-                   https://api.papermc.io/v2/projects/paper/versions/$latest_version/builds/$latest_build \
-                   | jq -r '.downloads.application')
+    http_get_json https://fill.papermc.io/v3/projects/paper/versions/$latest_version latest_build '.builds[0]'
+    http_get_json https://fill.papermc.io/v3/projects/paper/versions/$latest_version/builds/$latest_build application '.downloads."server:default"'
     filename=$( echo $application | jq -r '.name')
-    sha256=$( echo $application | jq -r '.sha256')
+    sha256=$( echo $application | jq -r '.checksums.sha256')
+    download_url=$( echo $application | jq -r '.url')
     exists_sha256=""
 
     log "PaperMC Latest Version: $filename"
@@ -67,12 +60,8 @@ if [[ "$PAPERCRAFT_JAR" = 'dynamic' ]]; then
         log "  Got:      $exists_sha256"
         log 'Removing any existing file and retrying download...'
         rm -f $filename >/dev/null
-        download_url="https://api.papermc.io/v2/projects/paper/versions/$latest_version/builds/$latest_build/downloads/$filename"
         log "Downloading from $download_url..."
-        curl -X 'GET' \
-            $download_url \
-            -H 'accept: application/json' \
-            --output $filename
+        http_get_file $download_url $filename
         log 'Download complete. Verifying new checksum...'
         exists_sha256=$( sha256sum $filename | cut -d ' ' -f 1 )
     done

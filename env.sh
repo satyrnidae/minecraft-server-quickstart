@@ -79,6 +79,7 @@ if [[ -z "${__SPIN_COUNTER}" ]]; then
     set +a
 fi
 spinner() {
+    local spin_frames spindex
     spin_frames=('   ' '.  ' '.. ' '...' ' ..' '  .' '   ')
     spindex=$(($__SPIN_COUNTER % ${#spin_frames[@]}))
     set -a
@@ -111,6 +112,7 @@ error() {
     printf '%s ERROR: %s\n' "$(date +'%Y-%m-%dT%H:%M:%S%z')" "$*" >>./quickstart.log 2>&1
 }
 fatal() {
+    local exit_code
     exit_code=$1; shift || exit $EX_USAGE
     printf 'FATAL: %s (Exit code %s)\n' "$*" "$exit_code" >&2
     printf '%s FATAL: %s (Exit code %s)\n' "$(date +'%Y-%m-%dT%H:%M:%S%z')" "$*" "$exit_code" >>./quickstart.log 2>&1
@@ -129,6 +131,70 @@ depends() {
     }
 }
 
+# Network requests
+http_status_message() {
+    case "$1" in
+        300) echo 'Multiple Choices' ;;
+        301) echo 'Moved Permanently' ;;
+        302) echo 'Found' ;;
+        304) echo 'Not Modified' ;;
+        307) echo 'Temporary Redirect' ;;
+        308) echo 'Permanent Redirect' ;;
+        400) echo 'Bad Request' ;;
+        401) echo 'Unauthorized' ;;
+        403) echo 'Forbidden' ;;
+        404) echo 'Not Found' ;;
+        405) echo 'Method Not Allowed' ;;
+        408) echo 'Request Timeout' ;;
+        409) echo 'Conflict' ;;
+        410) echo 'Gone' ;;
+        422) echo 'Unprocessable Entity' ;;
+        425) echo 'Too Early' ;;
+        429) echo 'Too Many Requests' ;;
+        500) echo 'Internal Server Error' ;;
+        501) echo 'Not Implemented' ;;
+        502) echo 'Bad Gateway' ;;
+        503) echo 'Service Unavailable' ;;
+        504) echo 'Gateway Timeout' ;;
+        *)   echo 'HTTP Error' ;;
+    esac
+}
+check_http() {
+    local curl_exit=$1
+    local http_code=$2
+    local url=$3
+    if [ "$curl_exit" -ne 0 ]; then
+        fatal $EX_UNAVAILABLE "Could not reach $url (curl exit code $curl_exit). Check your network connection and try again."
+    fi
+    if ! [[ "$http_code" =~ ^2[0-9][0-9]$ ]]; then
+        fatal $EX_UNAVAILABLE "$url returned HTTP $http_code ($( http_status_message "$http_code" )). The remote server may be unavailable. Please update the quicklauncher or try again later."
+    fi
+}
+http_get_json() {
+    local url=$1
+    local result_var=$2
+    local filter=$3
+    local response http_code curl_exit body
+    response=$( curl -s -L -w '\n%{http_code}' -X GET -H 'accept: application/json' "$url" )
+    curl_exit=$?
+    http_code=$( printf '%s' "$response" | tail -n1 )
+    check_http "$curl_exit" "$http_code" "$url"
+    body=$( printf '%s' "$response" | sed '$d' )
+    if [ -n "$filter" ]; then
+        printf -v "$result_var" '%s' "$( printf '%s' "$body" | jq -r "$filter" )"
+    else
+        printf -v "$result_var" '%s' "$body"
+    fi
+}
+http_get_file() {
+    local url=$1
+    local output=$2
+    local http_code curl_exit
+    http_code=$( curl -L -X GET -H 'accept: application/json' --output "$output" -w '%{http_code}' "$url" )
+    curl_exit=$?
+    check_http "$curl_exit" "$http_code" "$url"
+}
+
 # Signal traps
 extract_trap_cmd() {
     if ! [[ "$3" = "" ]]; then
@@ -136,6 +202,7 @@ extract_trap_cmd() {
     fi
 }
 prepend_trap() {
+    local trap_add_cmd trap_add_name
     trap_add_cmd=$1; shift || fatal $EX_USAGE "${FUNCNAME} usage error"
     for trap_add_name in "$@"; do
         trap -- "$(
@@ -147,6 +214,7 @@ prepend_trap() {
 }
 declare -f -t prepend_trap
 append_trap() {
+    local trap_add_cmd trap_add_name
     trap_add_cmd=$1; shift || fatal $EX_USAGE "${FUNCNAME} usage error"
     for trap_add_name in "$@"; do
         trap -- "$(
@@ -200,7 +268,11 @@ if ! [ -f $properties_file ]; then
     echo 'FORGE_ARGS=libraries/net/minecraftforge/forge/1.19.2-43.4.16/unix_args.txt # Set this to the args file from your forge install''s default script.' >> $properties_file
     echo '' >> $properties_file
     echo '# runs/minecraft.sh options' >> $properties_file
-    echo 'SERVER_JAR=server.jar # Set this to the name of the jar file you want to run.' >> $properties_file
+    echo 'MINECRAFT_JAR=dynamic     # Set this to dynamic to download the requested version from Mojang''s API, or set to a specific jar file.' >> $properties_file
+    echo 'MINECRAFT_VERSION=latest  # If MINECRAFT_JAR is set to dynamic, this will determine which Minecraft version is downloaded. Set to latest for the latest release, latest-snapshot for the latest snapshot, or an exact version id such as 1.20.4.' >> $properties_file
+    echo '' >> $properties_file
+    echo '# runs/example.sh options' >> $properties_file
+    echo 'EXAMPLE_SCRIPT_JARFILE=server.jar # Set this to the name of the jar file you want to run.' >> $properties_file
     echo '' >> $properties_file
     echo '# backup.sh options' >> $properties_file
     echo 'BACKUP_DIRECTORY="backups/" # Destination folder for backups. If using rsync or rdiff201, change this to use a folder outside the current directory.' >> $properties_file
@@ -245,7 +317,9 @@ KICK_CMD='kick @a'
 PAPERCRAFT_JAR='dynamic'
 PAPERCRAFT_VERSION='latest'
 FORGE_ARGS='@libraries/net/minecraftforge/forge/1.19.2-43.4.16/unix_args.txt'
-SERVER_JAR='server.jar'
+MINECRAFT_JAR='dynamic'
+MINECRAFT_VERSION='latest'
+EXAMPLE_SCRIPT_JARFILE='server.jar'
 BACKUP_DIRECTORY="backups/"
 BACKUP_METHOD='rdiff'
 BACKUP_ARGS=()

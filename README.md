@@ -11,6 +11,11 @@ Script utilities for launching a Minecraft server on Linux in a screen instance.
 - `curl` and `jq` (jqlang) for utilizing the PaperMC download API.
 - OpenJDK or other JVM for running Minecraft
 
+### Minecraft Launch Script (runs/minecraft.sh)
+
+- `curl` and `jq` (jqlang) for utilizing Mojang's version manifest API.
+- OpenJDK or other JVM for running Minecraft
+
 ### Forge Launch Script (runs/forge.sh)
 
 - Forge server installation
@@ -76,6 +81,13 @@ PAPERCRAFT_VERSION=latest # If PAPERCRAFT_JAR is set to dynamic, this will deter
 # runs/forge.sh options
 FORGE_ARGS=@libraries/net/minecraftforge/forge/1.19.2-43.4.16/unix_args.txt # Set this to the args file from your forge installs default script.
 
+# runs/minecraft.sh options
+MINECRAFT_JAR=dynamic    # Set this to dynamic to download the requested version from Mojang's API, or set to a specific jar file.
+MINECRAFT_VERSION=latest # If MINECRAFT_JAR is set to dynamic, this will determine which Minecraft version is downloaded. Set to latest for the latest release, latest-snapshot for the latest snapshot, or an exact version id such as 1.20.4.
+
+# runs/example.sh options
+EXAMPLE_SCRIPT_JARFILE=server.jar # Set this to the name of the jar file you want to run.
+
 # backup.sh options
 # Select one BACKUP_METHOD from the options below.
 BACKUP_METHOD=rdiff       # Legacy rdiff-backup CLI. Uses include-filelist.txt to designate included and excluded files and folders. Only enable if your rdiff-backup install supports the deprecated pre-201 CLI.
@@ -90,7 +102,7 @@ BACKUP_DIRECTORY=backups/ # Destination folder for backups. If using rsync or rd
 
 ## Custom Run Scripts
 
-You may add custom run script definitions to the **runs** directory. Two are provided by default, **forge.sh** and **papermc.sh**.
+You may add custom run script definitions to the **runs** directory. Three are provided by default, **forge.sh**, **papermc.sh**, and **minecraft.sh**.
 Custom scripts and arguments can be configured in the **quickstart.env** file:
 ```sh
 ...
@@ -101,31 +113,31 @@ RUN_SCRIPT_ARGS=(--nogui) # These arguments are passed directly to the script fi
 
 ### Script Example
 
-Here is an example of a very simple script for running the standard Minecraft server.jar.
+**runs/example.sh** is a very simple script, provided as a minimal starting point for writing your own, for running a standard Minecraft server.jar.
 
-#### runs/minecraft.sh
+#### runs/example.sh
 ```sh
 #!/bin/bash
 
 echo 'Launching default Minecraft server jar...'
-$JVM -server @user_jvm_args -jar $SERVER_JAR "$@"
+$JVM -server @user_jvm_args -jar $EXAMPLE_SCRIPT_JARFILE "$@"
 ```
 
 #### quickstart.env
 ```sh
 ...
-RUN_SCRIPT=minecraft
+RUN_SCRIPT=example.sh
 RUN_SCRIPT_ARGS=(--nogui)
 ...
-# runs/minecraft.sh properties
-SERVER_JAR=server.jar
+# runs/example.sh properties
+EXAMPLE_SCRIPT_JARFILE=server.jar
 ...
 ```
 
 #### File Structure
 ```
 runs/
-  + minecraft.sh
+  + example.sh
 server.jar
 run.sh
 ```
