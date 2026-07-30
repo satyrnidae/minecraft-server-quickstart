@@ -32,10 +32,6 @@ if [ $ENABLE_QUERY -eq 0 ]; then
     fatal $EX_CONFIG 'Skipping watchdog check as ENABLE_QUERY is disabled.'
 fi
 
-if ! [ -f .watchdog_lock ]; then
-    fatal $EX_NOINPUT 'Skipping watchdog check as no .watchdog_lock file was found.'
-fi
-
 if ! command -v "$MCLI" >/dev/null 2>&1; then
     fatal $EX_CONFIG "Unable to execute $MCLI, ensure your configuration is correct or that the executable is on your path."
 fi
@@ -45,12 +41,18 @@ fi
 #   the server isn't stalled, it's just not running, so restart it right
 #   away instead of waiting on the query failure counter below.
 if ! sudo -u $RUNAS screen -ls | grep -q $SCREEN; then
-    error 'Watchdog found no running screen session! Restarting server.'
-    rm -f ./.watchdog_lock >/dev/null
-    ./kill.sh
-    sleep 3s
+    error 'Watchdog found no running screen session! Restarting server.'i
+
+    if [ -f .watchdog_lock ]; then
+        warning 'Found .watchdog_lock file, but no screen session. Removing orphaned lock file.'
+        rm -f ./.watchdog_lock >/dev/null
+    fi
     ./start.sh
     exit $EX_OK
+fi
+
+if ! [ -f .watchdog_lock ]; then
+    fatal $EX_NOINPUT 'Screen running. Skipping watchdog check as no .watchdog_lock file was found.'
 fi
 
 # Pull counter from watchdog_lock
