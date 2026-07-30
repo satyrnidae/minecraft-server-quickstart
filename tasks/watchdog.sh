@@ -1,6 +1,9 @@
 #!/bin/bash
 # Queries the server if .watchdog_lock is present.  If the server does not
 #   respond in a reasonable amount of time, tries to kill it and reboot.
+# Also restarts immediately, bypassing the failure counter, if the screen
+#   session itself isn't running (i.e. the server isn't just stalled, it's
+#   flat out down).
 # Uses mctools python package. Install with "pipx mctools" and ensure the
 #   binaries are on your PATH.
 # Dependencies:
@@ -35,6 +38,19 @@ fi
 
 if ! command -v "$MCLI" >/dev/null 2>&1; then
     fatal $EX_CONFIG "Unable to execute $MCLI, ensure your configuration is correct or that the executable is on your path."
+fi
+
+# The screen session may be gone entirely (e.g. the process was killed and
+#   run.sh never got the chance to clean up .watchdog_lock). In that case
+#   the server isn't stalled, it's just not running, so restart it right
+#   away instead of waiting on the query failure counter below.
+if ! sudo -u $RUNAS screen -ls | grep -q $SCREEN; then
+    error 'Watchdog found no running screen session! Restarting server.'
+    rm -f ./.watchdog_lock >/dev/null
+    ./kill.sh
+    sleep 3s
+    ./start.sh
+    exit $EX_OK
 fi
 
 # Pull counter from watchdog_lock
