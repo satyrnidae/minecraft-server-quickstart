@@ -41,7 +41,7 @@ fi
 #   the server isn't stalled, it's just not running, so restart it right
 #   away instead of waiting on the query failure counter below.
 if ! sudo -u $RUNAS screen -ls | grep -q $SCREEN; then
-    error 'Watchdog found no running screen session! Restarting server.'i
+    error 'Watchdog found no running screen session! Restarting server.'
 
     if [ -f .watchdog_lock ]; then
         warning 'Found .watchdog_lock file, but no screen session. Removing orphaned lock file.'

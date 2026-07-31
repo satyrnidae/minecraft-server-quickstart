@@ -22,18 +22,26 @@ if [ $BACKUP_METHOD == 'rdiff201' ]; then
     log "Backing up entire server to $BACKUP_DIRECTORY with rdiff-backup, new CLI."
     depends rdiff-backup
     rdiff-backup --force --api-version 201 --terminal-verbosity 5 --ssh-compression backup "${BACKUP_ARGS[@]}" . $BACKUP_DIRECTORY
+    backup_exit=$?
 elif [ $BACKUP_METHOD == 'rdiff' ]; then
     log "Backing up entire server to $BACKUP_DIRECTORY with rdiff-backup, legacy CLI w/ excludes."
     depends rdiff-backup
     rdiff-backup --force --terminal-verbosity 5 --ssh-compression --compression --include-globbing-filelist include-filelist.txt "${BACKUP_ARGS[@]}" "." "$BACKUP_DIRECTORY"
+    backup_exit=$?
 elif [ $BACKUP_METHOD == 'rsync' ]; then
     log "Backing up entire server to $BACKUP_DIRECTORY with rsync..."
     depends rsync
     rsync -avz "${BACKUP_ARGS[@]}" '.' "$BACKUP_DIRECTORY"
+    backup_exit=$?
 else
     log "Backing up entire server to $BACKUP_DIRECTORY with secure copy..."
     depends scp
     scp -Cr "${BACKUP_ARGS[@]}" . $BACKUP_DIRECTORY
+    backup_exit=$?
+fi
+
+if [ $backup_exit -ne 0 ]; then
+    fatal $backup_exit "Backup command exited with status $backup_exit."
 fi
 
 log 'Backup completed successfully!'
