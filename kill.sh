@@ -23,7 +23,11 @@ if ! sudo -u $RUNAS screen -ls | grep -q $SCREEN; then
     fatal $EX_OK "There was no screen $SCREEN present for $RUNAS."
 fi
 
-pid=$(ps h -u $RUNAS --ppid $(sudo -u $RUNAS ls /run/screen/S-$RUNAS | grep $SCREEN | cut -d . -f1) -o pid | awk '{$1=$1};1')
+# Get the screen daemon's PID from `screen -ls` itself rather than assuming
+# a socket directory layout, which varies by distro.
+screen_pid=$(sudo -u $RUNAS screen -ls | grep -oP "\d+(?=\.${SCREEN}(\s|$))" | head -1)
+# Filter by ppid ourselves; `ps -u X --ppid Y` silently ignores --ppid on some systems.
+pid=$(ps h -u $RUNAS -o pid,ppid | awk -v ppid="$screen_pid" '$2 == ppid {print $1}' | head -1)
 if ps -p $pid >/dev/null; then
     cmd=$(ps h -p $pid -o cmd)
     log "Found process $pid with command $cmd, sending SIGTERM..."
