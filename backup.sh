@@ -16,6 +16,7 @@
 #	BACKUP_DUPLICITY_AUTOREMOVE_CNT		Number of full chains to keep, newest first. Must be 1 or more.
 #	BACKUP_DUPLICITY_AUTOREMOVE_ARGS	Extra args for the remove-all-but-n-full command as a bash array. --force is always sent, as it is needed to delete anything.
 # Exit codes:
+#	73	EX_CANTCREAT	Failed to create backup directory for Duplicity
 #	127	EX_CMDNOTFOUND	Your selected backup method was not executable and/or available on the PATH.
 
 # Navigate to the directory of the env script and trap exit for popd
