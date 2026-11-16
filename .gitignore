@@ -41,3 +41,6 @@ codeofconduct/
 
 # VS Code settings
 !.vscode/settings.json
+
+# Python venv (mctools for watchdog)
+.venv/
