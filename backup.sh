@@ -107,14 +107,26 @@ if [ "$BACKUP_METHOD" == 'duplicity' ]; then
 			make_remote_dir "$duplicity_target" || fatal $EX_CANTCREAT "Could not create remote backup directory $duplicity_target."
 			;;
 	esac
+	# Encryption: a GnuPG key or passphrase if configured, otherwise none, so unattended runs never prompt
+	if [ -n "${BACKUP_ENCRYPT_KEY:-}" ]; then
+		duplicity_enc_args=(--encrypt-key "$BACKUP_ENCRYPT_KEY")
+	elif [ -n "${PASSPHRASE:-}" ]; then
+		duplicity_enc_args=()
+	else
+		duplicity_enc_args=(--no-encryption)
+	fi
+	# A passphrase may also unlock the key, so export it either way
+	if [ -n "${PASSPHRASE:-}" ]; then
+		export PASSPHRASE
+	fi
 	log "Backing up entire server to $duplicity_target with duplicity, w/ excludes."
 	# incremental promotes itself to a full when no chain exists or --full-if-older-than trips
 	# Global options must come before the action, or duplicity counts them as positional args
-	duplicity "${BACKUP_ARGS[@]}" incremental --include-filelist include-filelist.txt . "$duplicity_target"
+	duplicity "${BACKUP_ARGS[@]}" "${duplicity_enc_args[@]}" incremental --include-filelist include-filelist.txt . "$duplicity_target"
 	backup_exit=$?
 	if [ $backup_exit -eq 0 ] && [ "$BACKUP_DUPLICITY_AUTOREMOVE" == 'true' ]; then
 		log "Removing all but the newest $BACKUP_DUPLICITY_AUTOREMOVE_CNT full backup chains from $duplicity_target."
-		duplicity "${BACKUP_DUPLICITY_AUTOREMOVE_ARGS[@]}" --force remove-all-but-n-full "$BACKUP_DUPLICITY_AUTOREMOVE_CNT" "$duplicity_target"
+		duplicity "${BACKUP_DUPLICITY_AUTOREMOVE_ARGS[@]}" "${duplicity_enc_args[@]}" --force remove-all-but-n-full "$BACKUP_DUPLICITY_AUTOREMOVE_CNT" "$duplicity_target"
 		backup_exit=$?
 		if [ $backup_exit -ne 0 ]; then
 			error "Backup succeeded, but removing old chains exited with status $backup_exit."

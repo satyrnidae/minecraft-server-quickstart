@@ -285,13 +285,16 @@ if ! [ -f $properties_file ]; then
 	echo '#BACKUP_METHOD=rdiff201	# Comment or remove the duplicity line and uncomment this one to use. New rdiff-backup CLI. Use an external or network folder for BACKUP_DIRECTORY, as include-filelist is no longer used.' >> $properties_file
 	echo '#BACKUP_METHOD=rsync	# Comment or remove the duplicity line and uncomment this one to use. Use rsync instead. Use an external or network folder for BACKUP_DIRECTORY, as no files are excluded.' >> $properties_file
 	echo '#BACKUP_METHOD=scp	# Comment or remove the duplicity line and uncomment this one to use. Use secure copy for the backup. Use an external or network folder for BACKUP_DIRECTORY, as no files will be excluded.' >> $properties_file
-	echo 'BACKUP_ARGS=("--full-if-older-than 1M")	# Extra args for the backup command as a bash array. For duplicity, these are passed before the "incremental" action, --full-if-older-than sets the full backup cadence, and --ssh-backend pexpect uses the system ssh for sftp:// and scp:// targets. For rdiff-backup, they come after the "backup" command. For others, they are passed directly to the command. Replace this value when switching away from duplicity, as the other tools reject --full-if-older-than.' >> $properties_file
+	echo 'BACKUP_ARGS=(--full-if-older-than 1M)	# Extra args for the backup command as a bash array. For duplicity, these are passed before the "incremental" action and --full-if-older-than sets the full backup cadence. Encryption flags are added by backup.sh, see BACKUP_ENCRYPT_KEY and PASSPHRASE below. For rdiff-backup, they come after the "backup" command. For others, they are passed directly to the command. Replace this value when switching away from duplicity, as the other tools reject --full-if-older-than.' >> $properties_file
 	echo '' >> $properties_file
 	echo '# duplicity options' >> $properties_file
 	echo '# Only applies to the Duplicity backend.' >> $properties_file
 	echo 'BACKUP_DUPLICITY_AUTOREMOVE=true	# Remove old chains with remove-all-but-n-full after each successful backup.' >> $properties_file
 	echo 'BACKUP_DUPLICITY_AUTOREMOVE_CNT=3	# Only applies to the Duplicity backend. Number of full chains to keep, newest first. Must be 1 or more.' >> $properties_file
 	echo 'BACKUP_DUPLICITY_AUTOREMOVE_ARGS=()	# Only applies to the Duplicity backend. Extra args for remove-all-but-n-full as a bash array. --force is always sent by backup.sh, as without it duplicity only lists what would be removed.' >> $properties_file
+	echo '# Encryption is off unless one of these is set, so unattended runs never prompt for a passphrase.' >> $properties_file
+	echo '#BACKUP_ENCRYPT_KEY=<gpg_key_id>		# Only applies to the Duplicity backend. Encrypt backups to this GnuPG key. Takes precedence over PASSPHRASE.' >> $properties_file
+	echo '#PASSPHRASE=<your_passphrase_here>	# Only applies to the Duplicity backend. Symmetric GnuPG passphrase, or the passphrase for BACKUP_ENCRYPT_KEY if it has one. If set, make certain this file is mode 600.' >> $properties_file
 	echo '' >> $properties_file
 	echo '# autorestart.sh / autoreboot.sh task properties' >> $properties_file
 	echo 'RESTART_TIMER=1800	# Time in seconds to wait before restarting the server automatically.' >> $properties_file
@@ -332,10 +335,11 @@ MINECRAFT_VERSION='latest'
 EXAMPLE_SCRIPT_JARFILE='server.jar'
 BACKUP_DIRECTORY="backups/"
 BACKUP_METHOD='duplicity'
-BACKUP_ARGS=(--full-if-older-than 1M --ssh-backend pexpect)
+BACKUP_ARGS=(--full-if-older-than 1M)
 BACKUP_DUPLICITY_AUTOREMOVE='true'
 BACKUP_DUPLICITY_AUTOREMOVE_CNT='3'
 BACKUP_DUPLICITY_AUTOREMOVE_ARGS=()
+BACKUP_ENCRYPT_KEY=''
 RESTART_TIMER='1800'
 RESTART_ESTIMATE='5 minutes'
 FULL_CYCLE_ESTIMATE='10 minutes'

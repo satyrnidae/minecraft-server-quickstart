@@ -24,7 +24,7 @@ Script utilities for launching a Minecraft server on Linux in a screen instance.
 ### Backup scripts (backup.sh, tasks/autobackup.sh)
 
 - `duplicity` for backups, the default. Full + incremental chains, with a new full every `--full-if-older-than` interval and old chains pruned by the `BACKUP_DUPLICITY_AUTOREMOVE_*` options.
-  - duplicity encrypts with GnuPG by default. Set `PASSPHRASE`, pass `--encrypt-key`, or pass `--no-encryption` for unattended runs.
+  - Backups are not encrypted unless `BACKUP_ENCRYPT_KEY` or `PASSPHRASE` is set in quickstart.env, so unattended runs never prompt. A key takes precedence. A passphrase alone gives symmetric GnuPG encryption, and losing it makes the archives unrecoverable.
   - NTFS drives need no filename args. Mount with uid/gid options so the server user can write.
 - `rdiff-backup` for backups, with the pre-201 CLI. Set `BACKUP_METHOD=rdiff` and replace `BACKUP_ARGS`.
   - If your distro no longer supplies pre-201 CLI rdiff-backup, modify quickstart.env to use the commented-out rdiff201 option, and ensure BACKUP_DIRECTORY is not set to a subdirectory of install folder.
@@ -99,7 +99,7 @@ BACKUP_METHOD=duplicity   # Full + incremental chains with duplicity. Uses inclu
 #BACKUP_METHOD=rsync      # Example only. Use rsync instead. Use an external or network folder for BACKUP_DIRECTORY, as no files are excluded.
 #BACKUP_METHOD=scp        # Example only. Use secure copy for the backup. Use an external or network folder for BACKUP_DIRECTORY, as no files will be excluded.
 BACKUP_DIRECTORY=backups/ # Destination folder for backups. If using rsync or rdiff201, use a folder outside the current directory.
-BACKUP_ARGS=(--full-if-older-than 1M --ssh-backend pexpect) # Extra args for the backup command as a bash array. For duplicity, --full-if-older-than sets the full backup cadence and --ssh-backend pexpect uses the system ssh for sftp:// and scp:// targets. Replace this when switching away from duplicity.
+BACKUP_ARGS=(--full-if-older-than 1M) # Extra args for the backup command as a bash array. For duplicity, --full-if-older-than sets the full backup cadence. Replace this when switching away from duplicity.
 
 # duplicity options
 BACKUP_DUPLICITY_AUTOREMOVE=true           # Remove old chains with remove-all-but-n-full after each successful backup.
