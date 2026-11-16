@@ -13,7 +13,7 @@ banner "Started a new Minecraft server instance"
 log "Launching as user $RUNAS in screen $SCREEN..."
 
 sudo -u $RUNAS screen -dS $SCREEN -m "$LAUNCH_CMD" || {
-    fatal $? "Failed to launch the server!"
+	fatal $? "Failed to launch the server!"
 }
 
 log "Server launched in screen $SCREEN."

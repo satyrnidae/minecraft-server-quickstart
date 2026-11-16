@@ -10,7 +10,7 @@ prepend_trap 'popd >/dev/null' EXIT
 
 # Sleep and warning subroutine
 if [ $# -gt 0 ]; then
-    ./tools/countdown $1 "Server will shut down"
+	./tools/countdown $1 "Server will shut down"
 fi
 # Remove the restart flag if it is present.
 rm .restart_flag &>/dev/null || true

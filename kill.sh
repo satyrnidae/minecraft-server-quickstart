@@ -1,15 +1,15 @@
 #!/bin/bash
 # Causes the running screen to exit via SIGTERM.
 # Dependencies:
-#   - screen
+#	screen
 # Child scripts:
-#   - attach.sh
+#	attach.sh
 # Configuration variables:
-#   - RUNAS:  The user with whom the screen would launch.
-#   - SCREEN: The name of the screen that the server would run under.
+#	RUNAS	The user with whom the screen would launch.
+#	SCREEN	The name of the screen that the server would run under.
 # Exit codes:
-#   - 71  (EX_OSERR):       The server did not respond to SIGKILL
-#   - 127 (EX_CMDNOTFOUND): Missing a dependency
+#	71	EX_OSERR	The server did not respond to SIGKILL
+#	127	EX_CMDNOTFOUND	Missing a dependency
 
 # Navigate to the directory of the env script and trap exit for popd
 pushd "$(dirname "$0")" >/dev/null
@@ -20,7 +20,7 @@ prepend_trap 'popd >/dev/null' EXIT
 
 depends screen
 if ! sudo -u $RUNAS screen -ls | grep -q $SCREEN; then
-    fatal $EX_OK "There was no screen $SCREEN present for $RUNAS."
+	fatal $EX_OK "There was no screen $SCREEN present for $RUNAS."
 fi
 
 # Get the screen daemon's PID from `screen -ls` itself rather than assuming
@@ -29,55 +29,55 @@ screen_pid=$(sudo -u $RUNAS screen -ls | grep -oP "\d+(?=\.${SCREEN}(\s|$))" | h
 # Filter by ppid ourselves; `ps -u X --ppid Y` silently ignores --ppid on some systems.
 pid=$(ps h -u $RUNAS -o pid,ppid | awk -v ppid="$screen_pid" '$2 == ppid {print $1}' | head -1)
 if ps -p $pid >/dev/null; then
-    cmd=$(ps h -p $pid -o cmd)
-    log "Found process $pid with command $cmd, sending SIGTERM..."
-    sudo -u $RUNAS kill -TERM $pid
-    log 'Waiting 1 minute for process exit.'
-    for ((i=240;i>0;i--)); do
-        if [ $i -gt 120 ]; then
-            spinner 'Checking for process status in  1 minute '
-        elif [ $i -gt 60 ]; then
-            spinner 'Checking for process status in 30 seconds'
-        elif [ $i -gt 40 ]; then
-            spinner 'Checking for process status in 15 seconds'
-        elif [ $i -ge 20 ]; then
-            spinner 'Checking for process status in 10 seconds'
-        elif [ $i -gt 4 ]; then
-            spinner 'Checking for process status in  %s seconds' $(($i / 4 + 1))
-        else
-            spinner 'Checking for process status in  1 second '
-        fi
-        sleep 0.25s
-    done
-    ovr 'Checking for process status now.            \n'
+	cmd=$(ps h -p $pid -o cmd)
+	log "Found process $pid with command $cmd, sending SIGTERM..."
+	sudo -u $RUNAS kill -TERM $pid
+	log 'Waiting 1 minute for process exit.'
+	for ((i=240;i>0;i--)); do
+		if [ $i -gt 120 ]; then
+			spinner 'Checking for process status in  1 minute '
+		elif [ $i -gt 60 ]; then
+			spinner 'Checking for process status in 30 seconds'
+		elif [ $i -gt 40 ]; then
+			spinner 'Checking for process status in 15 seconds'
+		elif [ $i -ge 20 ]; then
+			spinner 'Checking for process status in 10 seconds'
+		elif [ $i -gt 4 ]; then
+			spinner 'Checking for process status in  %s seconds' $(($i / 4 + 1))
+		else
+			spinner 'Checking for process status in  1 second '
+		fi
+		sleep 0.25s
+	done
+	ovr 'Checking for process status now.            \n'
 
-    if ps -p $pid >/dev/null; then
-        warning "Process $pid failed to respond to SIGTERM in time, sending SIGKILL..."
-        sudo -u $RUNAS kill -KILL $pid
-        log 'Waiting 10 seconds for process death.'
-        for ((i=40;i>0;i--)); do
-            if [ $i -ge 20 ]; then
-                spinner 'Checking for process status in 10 seconds'
-            elif [ $i -gt 4 ]; then
-                spinner 'Checking for process status in  %s seconds' $(($i / 4 + 1))
-            else
-                spinner 'Checking for process status in  1 second '
-            fi
-            sleep 0.25s
-        done
-        ovr 'Checking for process status now.            \n'
+	if ps -p $pid >/dev/null; then
+		warning "Process $pid failed to respond to SIGTERM in time, sending SIGKILL..."
+		sudo -u $RUNAS kill -KILL $pid
+		log 'Waiting 10 seconds for process death.'
+		for ((i=40;i>0;i--)); do
+			if [ $i -ge 20 ]; then
+				spinner 'Checking for process status in 10 seconds'
+			elif [ $i -gt 4 ]; then
+				spinner 'Checking for process status in  %s seconds' $(($i / 4 + 1))
+			else
+				spinner 'Checking for process status in  1 second '
+			fi
+			sleep 0.25s
+		done
+		ovr 'Checking for process status now.            \n'
 
-        if ps -p $pid >/dev/null; then
-            fatal $EX_OSERR 'Failed to terminate run script!'
-        fi
-    fi
+		if ps -p $pid >/dev/null; then
+			fatal $EX_OSERR 'Failed to terminate run script!'
+		fi
+	fi
 
-    log 'Run script terminated. Reattaching screen process in case it is still active.'
-    ./attach.sh
+	log 'Run script terminated. Reattaching screen process in case it is still active.'
+	./attach.sh
 else
-    warning 'No process to kill could be found.'
+	warning 'No process to kill could be found.'
 fi
 
 if [ -f .watchdog_lock ]; then
-    rm -f .watchdog_lock >/dev/null
+	rm -f .watchdog_lock >/dev/null
 fi
