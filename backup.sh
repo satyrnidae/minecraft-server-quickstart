@@ -1,8 +1,9 @@
 #!/bin/bash
+# TODO: Manual review needed. Please delete this line after review.
 # Backs up the server to the BACKUP_DIRECTORY using BACKUP_METHOD
 # Dependencies:
 #	duplicity
-#	ssh, sftp, scp, rsync	Optional, duplicity only, checked per target URL scheme. ssh, sftp and scp are only checked when BACKUP_ARGS has --ssh-backend pexpect.)
+#	ssh, sftp, scp, rsync	Optional, duplicity only, checked per target URL scheme. ssh, sftp and scp are only checked when BACKUP_ARGS has --ssh-backend pexpect. ssh is always checked for remote targets, as creating the remote directory runs mkdir --parents over it.
 #	rdiff-backup		Optional
 #	rsync			Optional
 #	scp			Optional
@@ -24,12 +25,55 @@ pushd "$(dirname "$0")" >/dev/null
 # Add trap for exit
 prepend_trap 'popd >/dev/null' EXIT
 
+# Splits a remote duplicity URL into REMOTE_USER, REMOTE_HOST, REMOTE_PORT and REMOTE_PATH.
+# One slash after the host is relative to the remote home, two is absolute. Passwords in the URL are dropped.
+parse_remote_url() {
+	local rest=${1#*://} auth
+	auth=${rest%%/*}
+	REMOTE_PATH=''
+	[[ "$rest" == */* ]] && REMOTE_PATH=${rest#*/}
+	REMOTE_USER=''
+	if [[ "$auth" == *@* ]]; then
+		REMOTE_USER=${auth%%@*}
+		REMOTE_USER=${REMOTE_USER%%:*}
+	fi
+	REMOTE_HOST=${auth##*@}
+	REMOTE_PORT=''
+	if [[ "$REMOTE_HOST" == *:* ]]; then
+		REMOTE_PORT=${REMOTE_HOST##*:}
+		REMOTE_HOST=${REMOTE_HOST%:*}
+	fi
+}
+
+# Creates a remote backup directory and any missing parents with mkdir --parents over ssh.
+# Needs a login shell and GNU mkdir on the remote, and key auth, as prompts are disabled.
+# BACKUP_ARGS such as --ssh-options are not applied here, only the port from the URL.
+make_remote_dir() {
+	local url=$1 dest quoted
+	parse_remote_url "$url"
+	[ -z "$REMOTE_PATH" ] && return 0
+	if [[ "$url" == rsync://*::* ]]; then
+		warning 'Skipping remote directory creation for an rsync daemon target.'
+		return 0
+	fi
+	depends ssh
+	dest=$REMOTE_HOST
+	[ -n "$REMOTE_USER" ] && dest="$REMOTE_USER@$REMOTE_HOST"
+	# Single quote the path for the remote shell, escaping any single quotes inside it
+	quoted=${REMOTE_PATH//\'/\'\\\'\'}
+	ssh ${REMOTE_PORT:+-p "$REMOTE_PORT"} -o BatchMode=yes "$dest" "mkdir --parents -- '$quoted'"
+}
+
 if [ "$BACKUP_METHOD" == 'duplicity' ]; then
 	depends duplicity
 	# duplicity wants a URL target. Resolve plain paths against the server directory.
 	duplicity_target="$BACKUP_DIRECTORY"
 	if [[ "$duplicity_target" != *://* ]]; then
 		duplicity_target="file://$(realpath -m "$duplicity_target")"
+	fi
+	# Local targets get created up front, so a fresh drive or folder does not depend on the backend doing it
+	if [[ "$duplicity_target" == file://* ]]; then
+		mkdir -p "${duplicity_target#file://}" || fatal $EX_CANTCREAT "Could not create backup directory ${duplicity_target#file://}."
 	fi
 	# Only the pexpect ssh backend shells out to the system clients, and only when BACKUP_ARGS names it
 	duplicity_pexpect=false
@@ -55,6 +99,12 @@ if [ "$BACKUP_METHOD" == 'duplicity' ]; then
 			# rsync:// has its own backend, which always runs rsync over the system ssh
 			depends rsync
 			depends ssh
+			;;
+	esac
+	# Remote targets get their directory made over the wire
+	case "$duplicity_target" in
+		sftp://*|ssh://*|scp://*|rsync://*)
+			make_remote_dir "$duplicity_target" || fatal $EX_CANTCREAT "Could not create remote backup directory $duplicity_target."
 			;;
 	esac
 	log "Backing up entire server to $duplicity_target with duplicity, w/ excludes."
