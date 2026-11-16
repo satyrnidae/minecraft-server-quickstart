@@ -1,5 +1,4 @@
 #!/bin/bash
-# TODO: Manual review needed. Please delete this line after review.
 # Backs up the server to the BACKUP_DIRECTORY using BACKUP_METHOD
 # Dependencies:
 #	duplicity
@@ -110,11 +109,12 @@ if [ "$BACKUP_METHOD" == 'duplicity' ]; then
 	esac
 	log "Backing up entire server to $duplicity_target with duplicity, w/ excludes."
 	# incremental promotes itself to a full when no chain exists or --full-if-older-than trips
-	duplicity incremental --include-filelist include-filelist.txt "${BACKUP_ARGS[@]}" . "$duplicity_target"
+	# Global options must come before the action, or duplicity counts them as positional args
+	duplicity "${BACKUP_ARGS[@]}" incremental --include-filelist include-filelist.txt . "$duplicity_target"
 	backup_exit=$?
 	if [ $backup_exit -eq 0 ] && [ "$BACKUP_DUPLICITY_AUTOREMOVE" == 'true' ]; then
 		log "Removing all but the newest $BACKUP_DUPLICITY_AUTOREMOVE_CNT full backup chains from $duplicity_target."
-		duplicity remove-all-but-n-full "$BACKUP_DUPLICITY_AUTOREMOVE_CNT" --force "${BACKUP_DUPLICITY_AUTOREMOVE_ARGS[@]}" "$duplicity_target"
+		duplicity "${BACKUP_DUPLICITY_AUTOREMOVE_ARGS[@]}" --force remove-all-but-n-full "$BACKUP_DUPLICITY_AUTOREMOVE_CNT" "$duplicity_target"
 		backup_exit=$?
 		if [ $backup_exit -ne 0 ]; then
 			error "Backup succeeded, but removing old chains exited with status $backup_exit."

@@ -245,22 +245,22 @@ if ! [ -f $properties_file ]; then
 	echo '' >> $properties_file
 	echo '# Common environment variables' >> $properties_file
 	echo 'SCREEN=minecraft_server	# The name of the screen that the server will run under.' >> $properties_file
-	echo "RUNAS=$(whoami)		# The user with whom the screen will be launched." >> $properties_file
+	echo "RUNAS=$(whoami)	# The user with whom the screen will be launched." >> $properties_file
 	echo '' >> $properties_file
 	echo '# start.sh options' >> $properties_file
 	echo 'LAUNCH_CMD="./run.sh"	# The command to start the server' >> $properties_file
 	echo '' >> $properties_file
 	echo '# run.sh options' >> $properties_file
-	echo 'RUN_SCRIPT=papermc.sh				# Must match the filename of a script in the "runs/" folder, with extension' >> $properties_file
+	echo 'RUN_SCRIPT=papermc.sh	# Must match the filename of a script in the "runs/" folder, with extension' >> $properties_file
 	echo 'RUN_SCRIPT_ARGS=(--nogui --universe saves)	# These arguments are passed directly to the script file by run.sh as a bash array. Add more entries for more arguments, such as (--nogui --universe saves --world "my world").' >> $properties_file
-	echo 'RESTART_WAIT_TIME=10s				# Time between restart attempts' >> $properties_file
+	echo 'RESTART_WAIT_TIME=10s	# Time between restart attempts' >> $properties_file
 	echo '' >> $properties_file
 	echo '# Common arguments for all runs/ scripts' >> $properties_file
 	echo "JVM='$(command -v java || echo java)'	# The command to launch the Java Virtual Machine." >> $properties_file
 	echo '' >> $properties_file
 	echo '# Common server commands used at runtime from certain scripts.' >> $properties_file
 	echo 'BCAST_CMD="title @a actionbar"	# Broadcast command for the server. Must support chat component strings as the final argument.' >> $properties_file
-	echo 'KICK_CMD="kick @a"		# Command to kick all players from the server. Must support strings and chat component strings as the final argument.' >> $properties_file
+	echo 'KICK_CMD="kick @a"	# Command to kick all players from the server. Must support strings and chat component strings as the final argument.' >> $properties_file
 	echo '' >> $properties_file
 	echo '# runs/papermc.sh options' >> $properties_file
 	echo 'PAPERCRAFT_JAR=dynamic	# Set this to dynamic to download the latest build from Paper''s API, or set to a specific jar file.' >> $properties_file
@@ -271,29 +271,30 @@ if ! [ -f $properties_file ]; then
 	echo '' >> $properties_file
 	echo '# runs/minecraft.sh options' >> $properties_file
 	echo 'MINECRAFT_JAR=dynamic	# Set this to dynamic to download the requested version from Mojang''s API, or set to a specific jar file.' >> $properties_file
-	echo 'MINECRAFT_VERSION=latest 	# If MINECRAFT_JAR is set to dynamic, this will determine which Minecraft version is downloaded. Set to latest for the latest release, latest-snapshot for the latest snapshot, or an exact version id such as 1.20.4.' >> $properties_file
+	echo 'MINECRAFT_VERSION=latest	# If MINECRAFT_JAR is set to dynamic, this will determine which Minecraft version is downloaded. Set to latest for the latest release, latest-snapshot for the latest snapshot, or an exact version id such as 1.20.4.' >> $properties_file
 	echo '' >> $properties_file
 	echo '# runs/example.sh options' >> $properties_file
 	echo 'EXAMPLE_SCRIPT_JARFILE=server.jar	# Set this to the name of the jar file you want to run.' >> $properties_file
 	echo '' >> $properties_file
 	echo '# backup.sh options' >> $properties_file
 	echo 'BACKUP_DIRECTORY="backups/"	# Destination folder for backups. If using rsync or rdiff201, change this to use a folder outside the current directory.' >> $properties_file
+	echo '' >> $properties_file
 	echo '# Select one BACKUP_METHOD from the options below.' >> $properties_file
 	echo 'BACKUP_METHOD=duplicity	# Full + incremental chains with duplicity. Uses include-filelist.txt to designate excluded files and folders. BACKUP_ARGS decides when a new full is made.' >> $properties_file
 	echo '#BACKUP_METHOD=rdiff	# Comment or remove the duplicity line and uncomment this one to use. Legacy rdiff-backup CLI. Uses include-filelist.txt to designate included and excluded files and folders. Only enable if your rdiff-backup install supports the deprecated pre-201 CLI.' >> $properties_file
 	echo '#BACKUP_METHOD=rdiff201	# Comment or remove the duplicity line and uncomment this one to use. New rdiff-backup CLI. Use an external or network folder for BACKUP_DIRECTORY, as include-filelist is no longer used.' >> $properties_file
 	echo '#BACKUP_METHOD=rsync	# Comment or remove the duplicity line and uncomment this one to use. Use rsync instead. Use an external or network folder for BACKUP_DIRECTORY, as no files are excluded.' >> $properties_file
 	echo '#BACKUP_METHOD=scp	# Comment or remove the duplicity line and uncomment this one to use. Use secure copy for the backup. Use an external or network folder for BACKUP_DIRECTORY, as no files will be excluded.' >> $properties_file
-	echo 'BACKUP_ARGS=(--full-if-older-than 1M --ssh-backend pexpect)	# Extra args for the backup command as a bash array. For duplicity, these come after the "incremental" action, --full-if-older-than sets the full backup cadence, and --ssh-backend pexpect uses the system ssh for sftp:// and scp:// targets. For rdiff-backup, they come after the "backup" command. For others, they are passed directly to the command. Replace this value when switching away from duplicity, as the other tools reject --full-if-older-than.' >> $properties_file
+	echo 'BACKUP_ARGS=("--full-if-older-than 1M")	# Extra args for the backup command as a bash array. For duplicity, these are passed before the "incremental" action, --full-if-older-than sets the full backup cadence, and --ssh-backend pexpect uses the system ssh for sftp:// and scp:// targets. For rdiff-backup, they come after the "backup" command. For others, they are passed directly to the command. Replace this value when switching away from duplicity, as the other tools reject --full-if-older-than.' >> $properties_file
 	echo '' >> $properties_file
 	echo '# duplicity options' >> $properties_file
 	echo '# Only applies to the Duplicity backend.' >> $properties_file
-	echo 'BACKUP_DUPLICITY_AUTOREMOVE=true		# Remove old chains with remove-all-but-n-full after each successful backup.' >> $properties_file
-	echo 'BACKUP_DUPLICITY_AUTOREMOVE_CNT=3		# Only applies to the Duplicity backend. Number of full chains to keep, newest first. Must be 1 or more.' >> $properties_file
-	echo 'BACKUP_DUPLICITY_AUTOREMOVE_ARGS=() 	# Only applies to the Duplicity backend. Extra args for remove-all-but-n-full as a bash array. --force is always sent by backup.sh, as without it duplicity only lists what would be removed.' >> $properties_file
+	echo 'BACKUP_DUPLICITY_AUTOREMOVE=true	# Remove old chains with remove-all-but-n-full after each successful backup.' >> $properties_file
+	echo 'BACKUP_DUPLICITY_AUTOREMOVE_CNT=3	# Only applies to the Duplicity backend. Number of full chains to keep, newest first. Must be 1 or more.' >> $properties_file
+	echo 'BACKUP_DUPLICITY_AUTOREMOVE_ARGS=()	# Only applies to the Duplicity backend. Extra args for remove-all-but-n-full as a bash array. --force is always sent by backup.sh, as without it duplicity only lists what would be removed.' >> $properties_file
 	echo '' >> $properties_file
 	echo '# autorestart.sh / autoreboot.sh task properties' >> $properties_file
-	echo 'RESTART_TIMER=1800		# Time in seconds to wait before restarting the server automatically.' >> $properties_file
+	echo 'RESTART_TIMER=1800	# Time in seconds to wait before restarting the server automatically.' >> $properties_file
 	echo 'RESTART_ESTIMATE="5 minutes"	# Approximate duration of a restart.' >> $properties_file
 	echo 'FULL_CYCLE_ESTIMATE="10 minutes"	# Approximate duration of a full server cycle.' >> $properties_file
 	echo '' >> $properties_file
