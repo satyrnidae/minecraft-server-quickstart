@@ -3,6 +3,7 @@
 # Utilizes backup.sh and stuff.sh to interact with the server as it is running
 # Dependencies:
 #   - screen (Optional)
+#   - duplicity (Optional)
 #   - rdiff-backup (Optional)
 #   - rsync (Optional)
 #   - scp (Optional)

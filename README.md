@@ -23,7 +23,10 @@ Script utilities for launching a Minecraft server on Linux in a screen instance.
 
 ### Backup scripts (backup.sh, tasks/autobackup.sh)
 
-- `rdiff-backup` for backups, with the pre-201 CLI
+- `duplicity` for backups, the default. Full + incremental chains, with a new full every `--full-if-older-than` interval and old chains pruned by the `BACKUP_DUPLICITY_AUTOREMOVE_*` options.
+  - duplicity encrypts with GnuPG by default. Set `PASSPHRASE`, pass `--encrypt-key`, or pass `--no-encryption` for unattended runs.
+  - NTFS drives need no filename args. Mount with uid/gid options so the server user can write.
+- `rdiff-backup` for backups, with the pre-201 CLI. Set `BACKUP_METHOD=rdiff` and replace `BACKUP_ARGS`.
   - If your distro no longer supplies pre-201 CLI rdiff-backup, modify quickstart.env to use the commented-out rdiff201 option, and ensure BACKUP_DIRECTORY is not set to a subdirectory of install folder.
   - quickstart.env can also be modified to use either `rsync` or `scp` for backup, if preferable.
 
@@ -90,12 +93,18 @@ EXAMPLE_SCRIPT_JARFILE=server.jar # Set this to the name of the jar file you wan
 
 # backup.sh options
 # Select one BACKUP_METHOD from the options below.
-BACKUP_METHOD=rdiff       # Legacy rdiff-backup CLI. Uses include-filelist.txt to designate included and excluded files and folders. Only enable if your rdiff-backup install supports the deprecated pre-201 CLI.
-#BACKUP_METHOD=rdiff201   # New rdiff-backup CLI. Use an external or network folder for BACKUP_DIRECTORY, as include-filelist is no longer used.
-#BACKUP_METHOD=rsync      # Use rsync instead of rdiff-backup. Use an external or network folder for BACKUP_DIRECTORY, as no files are excluded.
-#BACKUP_METHOD=scp        # Use secure copy for the backup. Use an external or network folder for BACKUP_DIRECTORY, as no files will be excluded.
+BACKUP_METHOD=duplicity   # Full + incremental chains with duplicity. Uses include-filelist.txt to designate excluded files and folders.
+#BACKUP_METHOD=rdiff      # Example only. Legacy rdiff-backup CLI. Uses include-filelist.txt to designate included and excluded files and folders. Only enable if your rdiff-backup install supports the deprecated pre-201 CLI.
+#BACKUP_METHOD=rdiff201   # Example only. New rdiff-backup CLI. Use an external or network folder for BACKUP_DIRECTORY, as include-filelist is no longer used.
+#BACKUP_METHOD=rsync      # Example only. Use rsync instead. Use an external or network folder for BACKUP_DIRECTORY, as no files are excluded.
+#BACKUP_METHOD=scp        # Example only. Use secure copy for the backup. Use an external or network folder for BACKUP_DIRECTORY, as no files will be excluded.
 BACKUP_DIRECTORY=backups/ # Destination folder for backups. If using rsync or rdiff201, use a folder outside the current directory.
-#BACKUP_ARGS=(--no-acls)  # Extra args for the backup command as a bash array. For rdiff-backup, these come after the "backup" command. For others, they are passed directly to the command.
+BACKUP_ARGS=(--full-if-older-than 1M --ssh-backend pexpect) # Extra args for the backup command as a bash array. For duplicity, --full-if-older-than sets the full backup cadence and --ssh-backend pexpect uses the system ssh for sftp:// and scp:// targets. Replace this when switching away from duplicity.
+
+# duplicity options
+BACKUP_DUPLICITY_AUTOREMOVE=true           # Remove old chains with remove-all-but-n-full after each successful backup.
+BACKUP_DUPLICITY_AUTOREMOVE_CNT=3          # Number of full chains to keep, newest first. Must be 1 or more.
+BACKUP_DUPLICITY_AUTOREMOVE_ARGS=()        # Extra args for remove-all-but-n-full as a bash array. --force is always sent by backup.sh, as without it duplicity only lists what would be removed.
 ```
 
 `RUN_SCRIPT_ARGS` and `BACKUP_ARGS` are bash arrays. A single-flag value from before this change, such as `RUN_SCRIPT_ARGS=--nogui`, keeps working unchanged. A value that packed multiple flags into one string, such as `RUN_SCRIPT_ARGS="--nogui --other"`, needs to be converted to array syntax (`RUN_SCRIPT_ARGS=(--nogui --other)`) or it will be passed through as a single argument.
