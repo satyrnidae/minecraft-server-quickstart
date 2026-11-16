@@ -18,8 +18,26 @@ Script utilities for launching a Minecraft server on Linux in a screen instance.
 
 ### Forge Launch Script (runs/forge.sh)
 
-- Forge server installation
+- Forge server installation, or set `FORGE_ARGS=dynamic` to have the script resolve and install a Forge build.
+  - Dynamic mode needs `curl` and `jq`, and uses `FORGE_MINECRAFT_VERSION` and `FORGE_BUILD`.
 - OpenJDK or other JVM for running Minecraft
+
+### Quilt Launch Script (runs/quilt.sh)
+
+- `curl` and `jq` (jqlang) for utilizing Mojang's version manifest and the Quilt meta API.
+- OpenJDK or other JVM for running Minecraft, also used to run the Quilt installer.
+- The installer downloads the vanilla server on first run, so no separate server jar is needed.
+
+### NeoForge Launch Script (runs/neoforge.sh)
+
+- `curl` and `jq` (jqlang) for utilizing Mojang's version manifest and NeoForge's maven metadata.
+- OpenJDK or other JVM for running Minecraft, also used to run the NeoForge installer.
+
+### Fabric Launch Script (runs/fabric.sh)
+
+- `curl` and `jq` (jqlang) for utilizing Mojang's version manifest and the Fabric meta API.
+- OpenJDK or other JVM for running Minecraft
+- The Fabric server launcher jar downloads the vanilla server on first run, so no separate server jar is needed.
 
 ### Backup scripts (backup.sh, tasks/autobackup.sh)
 

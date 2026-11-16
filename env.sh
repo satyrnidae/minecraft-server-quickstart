@@ -267,11 +267,27 @@ if ! [ -f $properties_file ]; then
 	echo 'PAPERCRAFT_VERSION=latest	# If PAPERCRAFT_JAR is set to dynamic, this will determine which Minecraft version is downloaded. Set to latest to use the latest version.' >> $properties_file
 	echo '' >> $properties_file
 	echo '# runs/forge.sh options' >> $properties_file
+	echo 'FORGE_MINECRAFT_VERSION=latest	# If FORGE_ARGS is set to dynamic, this will determine which Minecraft version is used. Set to latest for the latest release, latest-snapshot for the latest snapshot, or an exact version id such as 1.21.1.' >> $properties_file
+	echo 'FORGE_BUILD=recommended	# If FORGE_ARGS is set to dynamic, this will determine which Forge build is used. Set to recommended or latest for the promoted build, or an exact Forge version such as 52.1.20.' >> $properties_file
 	echo 'FORGE_ARGS=libraries/net/minecraftforge/forge/1.19.2-43.4.16/unix_args.txt	# Set this to the args file from your forge install''s default script.' >> $properties_file
 	echo '' >> $properties_file
 	echo '# runs/minecraft.sh options' >> $properties_file
 	echo 'MINECRAFT_JAR=dynamic	# Set this to dynamic to download the requested version from Mojang''s API, or set to a specific jar file.' >> $properties_file
 	echo 'MINECRAFT_VERSION=latest	# If MINECRAFT_JAR is set to dynamic, this will determine which Minecraft version is downloaded. Set to latest for the latest release, latest-snapshot for the latest snapshot, or an exact version id such as 1.20.4.' >> $properties_file
+	echo '' >> $properties_file
+	echo '# runs/fabric.sh options' >> $properties_file
+	echo 'FABRIC_MINECRAFT_VERSION=latest	# Set to latest for the latest release, latest-snapshot for the latest snapshot, or an exact version id such as 1.21.4.' >> $properties_file
+	echo 'FABRIC_LOADER_VERSION=latest	# Set to latest for the latest stable Fabric loader, or an exact loader version such as 0.16.14.' >> $properties_file
+	echo 'FABRIC_INSTALLER_VERSION=latest	# Set to latest for the latest stable Fabric installer, or an exact installer version such as 1.0.3.' >> $properties_file
+	echo '' >> $properties_file
+	echo '# runs/quilt.sh options' >> $properties_file
+	echo 'QUILT_MINECRAFT_VERSION=latest	# Set to latest for the latest release, latest-snapshot for the latest snapshot, or an exact version id such as 1.21.1.' >> $properties_file
+	echo 'QUILT_LOADER_VERSION=latest	# Set to latest for the latest non-beta Quilt loader, or an exact loader version such as 0.20.0-beta.9.' >> $properties_file
+	echo 'QUILT_INSTALLER_VERSION=latest	# Set to latest for the latest Quilt installer, or an exact installer version such as 0.15.1.' >> $properties_file
+	echo '' >> $properties_file
+	echo '# runs/neoforge.sh options' >> $properties_file
+	echo 'NEOFORGE_MINECRAFT_VERSION=latest	# Set to latest for the latest release, latest-snapshot for the latest snapshot, or an exact version id such as 1.21.1.' >> $properties_file
+	echo 'NEOFORGE_VERSION=latest	# Set to latest for the newest stable NeoForge for the Minecraft version, or an exact NeoForge version such as 21.1.266.' >> $properties_file
 	echo '' >> $properties_file
 	echo '# runs/example.sh options' >> $properties_file
 	echo 'EXAMPLE_SCRIPT_JARFILE=server.jar	# Set this to the name of the jar file you want to run.' >> $properties_file
@@ -332,6 +348,16 @@ PAPERCRAFT_VERSION='latest'
 FORGE_ARGS='@libraries/net/minecraftforge/forge/1.19.2-43.4.16/unix_args.txt'
 MINECRAFT_JAR='dynamic'
 MINECRAFT_VERSION='latest'
+FABRIC_MINECRAFT_VERSION='latest'
+FABRIC_LOADER_VERSION='latest'
+FABRIC_INSTALLER_VERSION='latest'
+QUILT_MINECRAFT_VERSION='latest'
+QUILT_LOADER_VERSION='latest'
+QUILT_INSTALLER_VERSION='latest'
+NEOFORGE_MINECRAFT_VERSION='latest'
+NEOFORGE_VERSION='latest'
+FORGE_MINECRAFT_VERSION='latest'
+FORGE_BUILD='recommended'
 EXAMPLE_SCRIPT_JARFILE='server.jar'
 BACKUP_DIRECTORY="backups/"
 BACKUP_METHOD='duplicity'
